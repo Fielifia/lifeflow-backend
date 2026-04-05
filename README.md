@@ -17,7 +17,7 @@ npm install
 ## Run the development server
 Start the server with:
 ```bash
-node index.js
+npm start
 ```
 The server will run on:
 ```
