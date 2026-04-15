@@ -27,11 +27,11 @@ const router = express.Router()
  */
 router.post('/register', async (req, res) => {
   try {
-    const { email, password } = req.body
+    const { email, password, username } = req.body
 
     // --- Validation ---
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password required' })
+    if (!email || !password || !username) {
+      return res.status(400).json({ error: 'Email, username, and password required' })
     }
 
     if (password.length < 8) {
@@ -55,6 +55,7 @@ router.post('/register', async (req, res) => {
     const user = await User.create({
       email,
       password: hashedPassword,
+      username,
     })
 
     // --- Response ---
