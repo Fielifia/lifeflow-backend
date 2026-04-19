@@ -1,34 +1,46 @@
 /**
- * Workout model representing a logged workout session.
+ * Workout model
  *
- * @module models/Workout
+ * Represents a logged workout session with exercises and sets.
  */
 
 import mongoose from 'mongoose'
 
-/**
- * Schema for a set within an exercise
- */
 const setSchema = new mongoose.Schema({
-  reps: Number,
-  weight: Number,
-  completed: { type: Boolean, default: false },
+  reps: {
+    type: Number,
+    required: true,
+  },
+  weight: {
+    type: Number,
+    default: 0,
+  },
+  completed: {
+    type: Boolean,
+    default: false,
+  },
 })
 
-/**
- * Schema for an exercise in a workout
- */
 const exerciseSchema = new mongoose.Schema({
-  exerciseId: String,
-  name: String,
-  sets: [setSchema],
-  rest: { type: Number, default: 120 },
+  exerciseId: {
+    type: String, // could be ObjectId if you want relation later
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  sets: {
+    type: [setSchema],
+    default: [],
+  },
+  rest: {
+    type: Number,
+    default: 120,
+  },
   notes: String,
 })
 
-/**
- * Workout schema
- */
 const workoutSchema = new mongoose.Schema(
   {
     user: {
@@ -36,10 +48,13 @@ const workoutSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    exercises: [exerciseSchema],
-    notes: String, // session-level notes
+    exercises: {
+      type: [exerciseSchema],
+      default: [],
+    },
+    notes: String,
   },
-  { timestamps: true },
+  { timestamps: true }
 )
 
 export default mongoose.model('Workout', workoutSchema)

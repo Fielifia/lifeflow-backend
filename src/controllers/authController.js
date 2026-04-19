@@ -10,11 +10,14 @@ import User from '../models/User.js'
 /**
  * Register a new user.
  *
- * @route POST /register
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response with success message or error
  */
 export const registerUser = async (req, res) => {
   try {
-    let { email, password, username } = req.body
+    let { email } = req.body
+    const { password, username } = req.body
 
     // --- Normalize email ---
     email = email.toLowerCase()
@@ -51,24 +54,27 @@ export const registerUser = async (req, res) => {
     })
 
     // --- Response ---
-    res.status(201).json({
+    return res.status(201).json({
       message: 'User created',
       userId: user._id,
     })
   } catch (err) {
     console.error('Register error:', err)
-    res.status(500).json({ error: 'Server error' })
+    return res.status(500).json({ error: 'Server error' })
   }
 }
 
 /**
  * Log in an existing user.
  *
- * @route POST /login
+ * @param {import('express').Request} req - The Express request object.
+ * @param {import('express').Response} res - The Express response object.
+ * @returns {Promise<void>} - Sends JSON response with success message or error
  */
 export const loginUser = async (req, res) => {
   try {
-    let { email, password } = req.body
+    let { email } = req.body
+    const { password } = req.body
 
     // --- Normalize email ---
     email = email.toLowerCase()
@@ -100,14 +106,14 @@ export const loginUser = async (req, res) => {
     const token = jwt.sign(
       {
         userId: user._id,
-        email: user.email, // optional but useful
+        email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' },
+      { expiresIn: '7d' }
     )
 
     // --- Response ---
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Login successful',
       token,
       user: {
@@ -117,6 +123,6 @@ export const loginUser = async (req, res) => {
     })
   } catch (err) {
     console.error('Login error:', err)
-    res.status(500).json({ error: 'Server error' })
+    return res.status(500).json({ error: 'Server error' })
   }
 }
