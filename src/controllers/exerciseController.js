@@ -4,6 +4,7 @@
  * @module controllers/exerciseController
  */
 
+import mongoose from 'mongoose'
 import Exercise from '../models/Exercise.js'
 
 /**
@@ -55,6 +56,39 @@ export const getExercises = async (req, res) => {
 
     res.status(500).json({
       error: 'Failed to fetch exercises',
+    })
+  }
+}
+
+/**
+ * Get single exercise by ID
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const getExerciseById = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid ID' })
+    }
+
+    const exercise = await Exercise.findById(id)
+
+    if (!exercise) {
+      return res.status(404).json({
+        error: 'Exercise not found',
+      })
+    }
+
+    res.status(200).json(exercise)
+  } catch (err) {
+    console.error('Get exercise by ID error:', err)
+
+    res.status(500).json({
+      error: 'Failed to fetch exercise',
     })
   }
 }
