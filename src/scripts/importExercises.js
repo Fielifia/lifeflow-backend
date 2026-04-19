@@ -34,6 +34,7 @@ const __dirname = path.dirname(__filename)
 
 /**
  * Absolute path to exercises dataset
+ *
  * @type {string}
  */
 const filePath = path.join(__dirname, '../../data/exercises.json')
@@ -41,6 +42,7 @@ const filePath = path.join(__dirname, '../../data/exercises.json')
 /**
  * Base URL for hosted exercise images
  * Converts relative image paths → full URLs
+ *
  * @type {string}
  */
 const BASE_URL =
@@ -49,7 +51,7 @@ const BASE_URL =
 /**
  * Load and parse exercise JSON file
  *
- * @returns {Array<Object>} Parsed exercise data
+ * @returns {Array<object>} Parsed exercise data
  * @throws {Error} If file cannot be read or parsed
  */
 function loadExercisesFromFile() {
@@ -64,8 +66,8 @@ function loadExercisesFromFile() {
 /**
  * Transform external dataset → internal Exercise schema
  *
- * @param {Array<Object>} exercises Raw dataset
- * @returns {Array<Object>} Mapped exercises
+ * @param {Array<object>} exercises Raw dataset
+ * @returns {Array<object>} Mapped exercises
  */
 function mapExercises(exercises) {
   return exercises

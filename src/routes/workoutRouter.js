@@ -3,7 +3,6 @@
  *
  * @module routes/workouts
  */
-
 import express from 'express'
 import Workout from '../models/Workout.js'
 import { authMiddleware } from '../middleware/auth.js'
@@ -11,12 +10,11 @@ import { authMiddleware } from '../middleware/auth.js'
 const router = express.Router()
 
 /**
- * Create a new workout session
+ * Create a new workout session.
  *
- * @route POST /workouts
- * @returns {201} Workout created
- * @returns {401} Unauthorized
- * @returns {500} Server error
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
  */
 router.post('/', authMiddleware, async (req, res) => {
   try {
@@ -28,12 +26,12 @@ router.post('/', authMiddleware, async (req, res) => {
       notes,
     })
 
-    res.status(201).json({
+    return res.status(201).json({
       message: 'Workout created',
       workout,
     })
-  } catch (err) {
-    res.status(500).json({ error: 'Server error' })
+  } catch (_err) {
+    return res.status(500).json({ error: 'Server error' })
   }
 })
 
