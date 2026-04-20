@@ -8,7 +8,6 @@ import Exercise from '../models/Exercise.js'
 
 export const getExercises = async (req, res) => {
   try {
-    console.log('NEW CONTROLLER RUNNING')
     const { category, muscle, page = 1, limit = 20 } = req.query
 
     const filter = {}
@@ -86,4 +85,3 @@ export const getExerciseById = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch exercise' })
   }
 }
-
