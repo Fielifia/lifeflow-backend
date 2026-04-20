@@ -4,91 +4,86 @@
  * @module controllers/exerciseController
  */
 
-import mongoose from 'mongoose'
 import Exercise from '../models/Exercise.js'
 
-/**
- * Get exercises with search, filters, and pagination
- *
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<void>} Sends JSON response
- */
 export const getExercises = async (req, res) => {
   try {
-    let { limit = 20, page = 1 } = req.query
-    const { equipment, muscle, search } = req.query
+    console.log('NEW CONTROLLER RUNNING')
+    const { category, muscle, page = 1, limit = 20 } = req.query
 
-    page = Math.max(1, parseInt(page))
-    limit = Math.min(100, Math.max(1, parseInt(limit))) // cap på 100
+    const filter = {}
 
-    const query = {}
-
-    if (search && search.trim() !== '') {
-      query.name = {
-        $regex: search.trim(),
-        $options: 'i',
-      }
+    if (category) {
+      filter.category = new RegExp(`^${category}$`, 'i')
     }
 
-    if (muscle && muscle.trim() !== '') {
-      query.target = muscle.trim()
+    if (muscle) {
+      filter.muscle = new RegExp(`^${muscle}$`, 'i')
     }
 
-    if (equipment && equipment.trim() !== '') {
-      query.equipment = equipment.trim()
-    }
+    const skip = (page - 1) * limit
 
-    const exercises = await Exercise.find(query)
-      .skip((page - 1) * limit)
-      .limit(limit)
+    const [exercises, total] = await Promise.all([
+      Exercise.find(filter).skip(skip).limit(Number(limit)).lean(),
+      Exercise.countDocuments(filter),
+    ])
 
-    const total = await Exercise.countDocuments(query)
+    const clean = exercises.map((ex) => ({
+      id: ex._id,
+      wgerId: ex.wgerId,
+      name: ex.name,
+      category: ex.category,
+      muscle: ex.muscle,
+      equipment: ex.equipment,
+      image: ex.image,
+    }))
 
-    res.status(200).json({
-      page,
-      limit,
+    res.json({
+      page: Number(page),
+      limit: Number(limit),
       total,
-      results: exercises,
+      results: clean,
     })
   } catch (err) {
-    console.error('Get exercises error:', err)
-
-    res.status(500).json({
-      error: 'Failed to fetch exercises',
-    })
+    res.status(500).json({ error: 'Failed to fetch exercises' })
   }
 }
 
-/**
- * Get single exercise by ID
- *
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<void>} Sends JSON response
- */
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await Exercise.distinct('category')
+    res.json(categories.sort())
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch categories' })
+  }
+}
+
+export const getMuscles = async (req, res) => {
+  try {
+    const { category } = req.query
+
+    const filter = category
+      ? { category: new RegExp(`^${category}$`, 'i') }
+      : {}
+
+    const muscles = await Exercise.distinct('muscle', filter)
+
+    res.json(muscles.sort())
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch muscles' })
+  }
+}
+
 export const getExerciseById = async (req, res) => {
   try {
     const { id } = req.params
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid ID' })
-    }
-
-    const exercise = await Exercise.findById(id)
-
+    const exercise = await Exercise.findById(id).lean()
     if (!exercise) {
-      return res.status(404).json({
-        error: 'Exercise not found',
-      })
+      return res.status(404).json({ error: 'Exercise not found' })
     }
-
-    res.status(200).json(exercise)
+    res.json(exercise)
   } catch (err) {
-    console.error('Get exercise by ID error:', err)
-
-    res.status(500).json({
-      error: 'Failed to fetch exercise',
-    })
+    res.status(500).json({ error: 'Failed to fetch exercise' })
   }
 }
+
