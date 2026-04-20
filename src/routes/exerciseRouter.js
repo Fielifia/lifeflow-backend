@@ -5,13 +5,20 @@
  */
 import express from 'express'
 import { authMiddleware } from '../middleware/auth.js'
-import { getExercises, getCategories, getMuscles } from '../controllers/exerciseController.js'
+import {
+  getExercises,
+  getExerciseById,
+  getCategories,
+  getMuscles,
+} from '../controllers/exerciseController.js'
 
 const router = express.Router()
 
-router.get('/', authMiddleware, getExercises)
 router.get('/categories', authMiddleware, getCategories)
 router.get('/muscles', authMiddleware, getMuscles)
-router.get('/:id', authMiddleware, getExercises)
+
+router.get('/', authMiddleware, getExercises)
+
+router.get('/:id', authMiddleware, getExerciseById)
 
 export default router
