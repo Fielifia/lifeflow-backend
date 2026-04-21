@@ -21,9 +21,6 @@ router.get('/', authMiddleware, getExercises)
 
 router.get('/:id', authMiddleware, getExerciseById)
 
-<<<<<<< Updated upstream
-=======
 
 
->>>>>>> Stashed changes
 export default router

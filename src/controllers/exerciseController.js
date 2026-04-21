@@ -1,37 +1,6 @@
 /**
  * Exercise controller
  */
-<<<<<<< Updated upstream
-import Exercise from '../models/Exercise.js'
-
-const formatExercise = (ex) => ({
-  id: ex._id.toString(),
-  wgerId: ex.wgerId,
-  name: ex.name,
-  category: ex.category,
-  muscle: ex.muscle,
-  equipment: ex.equipment || [],
-  image: ex.image || null,
-})
-
-const muscleMap = {
-  chest: ['Pectoralis major'],
-  back: ['Latissimus dorsi', 'Trapezius'],
-  shoulders: ['Anterior deltoid'],
-  arms: ['Biceps brachii', 'Triceps brachii', 'Forearm flexors'],
-  legs: ['Quadriceps femoris', 'Hamstrings', 'Gluteus maximus'],
-  core: ['Rectus abdominis'],
-}
-
-const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-
-export const getExercises = async (req, res) => {
-  try {
-    let { category, muscle, search, page = 1, limit = 20 } = req.query
-
-    page = Math.max(1, Number(page))
-    limit = Math.min(100, Number(limit))
-=======
 
 import Exercise from '../models/Exercise.js'
 
@@ -60,45 +29,27 @@ export const getExercises = async (req, res) => {
 
     page = Math.max(1, parseInt(page))
     limit = Math.min(100, Math.max(1, parseInt(limit)))
->>>>>>> Stashed changes
 
-    const filter = {}
+    const query = {}
 
-    if (category) {
-      filter.category = new RegExp(`^${escapeRegex(category)}$`, 'i')
-    }
-
-    if (muscle) {
-      const mapped = muscleMap[muscle.toLowerCase()]
-
-      if (mapped) {
-        filter.muscle = { $in: mapped }
-      } else {
-        filter.muscle = new RegExp(escapeRegex(muscle), 'i')
+    if (search && search.trim() !== '') {
+      query.name = {
+        $regex: search.trim(),
+        $options: 'i',
       }
     }
 
-<<<<<<< Updated upstream
-    if (search) {
-      filter.name = new RegExp(escapeRegex(search), 'i')
-    }
-
-    const skip = (page - 1) * limit
-
-    const [exercises, total] = await Promise.all([
-      Exercise.find(filter).sort({ name: 1 }).skip(skip).limit(limit).lean(),
-=======
-    if (muscle) {
-      query.primaryMuscles = { $in: [muscle] }
-    }
-
     if (muscle && muscle.trim() !== '') {
-      query.target = muscle.trim()
+      query.$or = [
+        { primaryMuscles: { $in: [muscle] } },
+        { target: muscle.trim() },
+      ]
     }
 
     if (bodyPart && bodyPart.trim() !== '') {
       query.bodyPart = bodyPart.trim()
     }
+
 
     if (equipment && equipment.trim() !== '') {
       query.equipment = equipment.trim()
@@ -108,20 +59,21 @@ export const getExercises = async (req, res) => {
       .skip((page - 1) * limit)
       .limit(limit)
       .lean()
->>>>>>> Stashed changes
 
-      Exercise.countDocuments(filter),
-    ])
+    const total = await Exercise.countDocuments(query)
 
-    res.json({
+    res.status(200).json({
       page,
       limit,
       total,
       results: exercises.map(formatExercise),
     })
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ error: 'Failed to fetch exercises' })
+    console.error('Get exercises error:', err)
+
+    res.status(500).json({
+      error: 'Failed to fetch exercises',
+    })
   }
 }
 
@@ -150,11 +102,6 @@ export const getMuscles = async (req, res) => {
   }
 }
 
-<<<<<<< Updated upstream
-export const getExerciseById = async (req, res) => {
-  try {
-    const exercise = await Exercise.findById(req.params.id).lean()
-=======
 /**
  * GET /exercises/:id
  */
@@ -165,17 +112,12 @@ export const getExerciseById = async (req, res) => {
     const exercise = await Exercise.findOne({
       exerciseDbId: id,
     }).lean()
->>>>>>> Stashed changes
 
     if (!exercise) {
       return res.status(404).json({ error: 'Exercise not found' })
     }
 
-<<<<<<< Updated upstream
-    res.json(formatExercise(exercise))
-=======
     res.status(200).json(formatExercise(exercise))
->>>>>>> Stashed changes
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch exercise' })
   }

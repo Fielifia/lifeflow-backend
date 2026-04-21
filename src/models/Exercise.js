@@ -2,13 +2,8 @@ import mongoose from 'mongoose'
 
 const ExerciseSchema = new mongoose.Schema(
   {
-<<<<<<< Updated upstream
-    wgerId: {
-      type: Number,
-=======
     exerciseDbId: {
       type: String,
->>>>>>> Stashed changes
       required: true,
       unique: true,
     },
@@ -19,17 +14,6 @@ const ExerciseSchema = new mongoose.Schema(
       trim: true,
     },
 
-<<<<<<< Updated upstream
-    category: {
-      type: String,
-    },
-
-    muscle: {
-      type: [String],
-    },
-
-    equipment: {
-=======
     bodyPart: {
       type: String,
       required: true,
@@ -46,17 +30,10 @@ const ExerciseSchema = new mongoose.Schema(
     },
 
     images: {
->>>>>>> Stashed changes
       type: [String],
       default: [],
     },
 
-<<<<<<< Updated upstream
-    image: {
-      type: String,
-      default: null,
-    },
-=======
     primaryMuscles: {
       type: [String],
       default: [],
@@ -75,7 +52,6 @@ const ExerciseSchema = new mongoose.Schema(
     level: String,
     mechanic: String,
     force: String,
->>>>>>> Stashed changes
   },
   {
     timestamps: true,
@@ -83,14 +59,9 @@ const ExerciseSchema = new mongoose.Schema(
 )
 
 ExerciseSchema.index({ name: 'text' })
-<<<<<<< Updated upstream
-ExerciseSchema.index({ category: 1 })
-ExerciseSchema.index({ muscle: 1 })
-=======
 ExerciseSchema.index({ bodyPart: 1 })
 ExerciseSchema.index({ target: 1 })
 ExerciseSchema.index({ primaryMuscles: 1 })
 ExerciseSchema.index({ equipment: 1 })
->>>>>>> Stashed changes
 
 export default mongoose.model('Exercise', ExerciseSchema)
