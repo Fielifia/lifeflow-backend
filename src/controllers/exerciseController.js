@@ -50,7 +50,6 @@ export const getExercises = async (req, res) => {
       query.bodyPart = bodyPart.trim()
     }
 
-
     if (equipment && equipment.trim() !== '') {
       query.equipment = equipment.trim()
     }

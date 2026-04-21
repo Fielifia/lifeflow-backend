@@ -40,15 +40,6 @@ const __dirname = path.dirname(__filename)
 const filePath = path.join(__dirname, '../../data/exercises.json')
 
 /**
- * Base URL for hosted exercise images
- * Converts relative image paths → full URLs
- *
- * @type {string}
- */
-const BASE_URL =
-  'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/'
-
-/**
  * Load and parse exercise JSON file
  *
  * @returns {Array<object>} Parsed exercise data
