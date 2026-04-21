@@ -1,8 +1,7 @@
 /**
- * Exercise controller handling exercise retrieval with search, filters, and pagination.
- *
- * @module controllers/exerciseController
+ * Exercise controller
  */
+<<<<<<< Updated upstream
 import Exercise from '../models/Exercise.js'
 
 const formatExercise = (ex) => ({
@@ -32,6 +31,36 @@ export const getExercises = async (req, res) => {
 
     page = Math.max(1, Number(page))
     limit = Math.min(100, Number(limit))
+=======
+
+import Exercise from '../models/Exercise.js'
+
+/**
+ * Format exercise for frontend
+ */
+const formatExercise = (ex) => ({
+  id: ex.exerciseDbId,
+  name: ex.name,
+  bodyPart: ex.bodyPart,
+  target: ex.target,
+  equipment: ex.equipment,
+  images: ex.images || [],
+  primaryMuscles: ex.primaryMuscles || [],
+  secondaryMuscles: ex.secondaryMuscles || [],
+  instructions: ex.instructions || [],
+})
+
+/**
+ * GET /exercises
+ */
+export const getExercises = async (req, res) => {
+  try {
+    let { limit = 20, page = 1 } = req.query
+    const { equipment, muscle, search, bodyPart } = req.query
+
+    page = Math.max(1, parseInt(page))
+    limit = Math.min(100, Math.max(1, parseInt(limit)))
+>>>>>>> Stashed changes
 
     const filter = {}
 
@@ -49,6 +78,7 @@ export const getExercises = async (req, res) => {
       }
     }
 
+<<<<<<< Updated upstream
     if (search) {
       filter.name = new RegExp(escapeRegex(search), 'i')
     }
@@ -57,6 +87,28 @@ export const getExercises = async (req, res) => {
 
     const [exercises, total] = await Promise.all([
       Exercise.find(filter).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+=======
+    if (muscle) {
+      query.primaryMuscles = { $in: [muscle] }
+    }
+
+    if (muscle && muscle.trim() !== '') {
+      query.target = muscle.trim()
+    }
+
+    if (bodyPart && bodyPart.trim() !== '') {
+      query.bodyPart = bodyPart.trim()
+    }
+
+    if (equipment && equipment.trim() !== '') {
+      query.equipment = equipment.trim()
+    }
+
+    const exercises = await Exercise.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
+>>>>>>> Stashed changes
 
       Exercise.countDocuments(filter),
     ])
@@ -98,15 +150,32 @@ export const getMuscles = async (req, res) => {
   }
 }
 
+<<<<<<< Updated upstream
 export const getExerciseById = async (req, res) => {
   try {
     const exercise = await Exercise.findById(req.params.id).lean()
+=======
+/**
+ * GET /exercises/:id
+ */
+export const getExerciseById = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const exercise = await Exercise.findOne({
+      exerciseDbId: id,
+    }).lean()
+>>>>>>> Stashed changes
 
     if (!exercise) {
       return res.status(404).json({ error: 'Exercise not found' })
     }
 
+<<<<<<< Updated upstream
     res.json(formatExercise(exercise))
+=======
+    res.status(200).json(formatExercise(exercise))
+>>>>>>> Stashed changes
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch exercise' })
   }
