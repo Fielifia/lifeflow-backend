@@ -53,7 +53,7 @@ const workoutSchema = new mongoose.Schema(
     },
     notes: String,
   },
-  { timestamps: true },
+  { timestamps: true }
 )
 
 export default mongoose.model('Workout', workoutSchema)
