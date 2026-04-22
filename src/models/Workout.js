@@ -9,7 +9,6 @@ import mongoose from 'mongoose'
 const setSchema = new mongoose.Schema({
   reps: {
     type: Number,
-    required: true,
   },
   weight: {
     type: Number,
@@ -54,7 +53,7 @@ const workoutSchema = new mongoose.Schema(
     },
     notes: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 )
 
 export default mongoose.model('Workout', workoutSchema)

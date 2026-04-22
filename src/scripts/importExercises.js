@@ -71,8 +71,8 @@ function loadExercisesFromFile() {
  */
 function mapExercises(exercises) {
   return exercises
-    .filter(ex => ex.id && ex.name) // 🔒 säkerställ att required fields finns
-    .map(ex => ({
+    .filter((ex) => ex.id && ex.name) // 🔒 säkerställ att required fields finns
+    .map((ex) => ({
       id: ex.id,
       name: ex.name,
 
@@ -87,7 +87,7 @@ function mapExercises(exercises) {
       difficulty: ex.level || 'beginner',
 
       images: Array.isArray(ex.images)
-        ? ex.images.map(img => BASE_URL + img)
+        ? ex.images.map((img) => BASE_URL + img)
         : [],
     }))
 }
