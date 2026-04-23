@@ -9,7 +9,8 @@ import mongoose from 'mongoose'
 const setSchema = new mongoose.Schema({
   reps: {
     type: Number,
-    required: true,
+    default: 8,
+    min: 0,
   },
   weight: {
     type: Number,

@@ -18,11 +18,21 @@ const router = express.Router()
  */
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { exercises = [], notes } = req.body
+    const { exercises = [], name, notes } = req.body
+
+    const sanitizedExercises = exercises.map((ex) => ({
+      ...ex,
+      sets: ex.sets.map((s) => ({
+        reps: Number(s.reps) || 8,
+        weight: Number(s.weight) || 0,
+        completed: s.completed || false,
+      })),
+    }))
 
     const workout = await Workout.create({
       user: req.userId,
-      exercises,
+      name,
+      exercises: sanitizedExercises,
       notes,
     })
 

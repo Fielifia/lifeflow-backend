@@ -109,7 +109,7 @@ export const loginUser = async (req, res) => {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '7d' },
     )
 
     // --- Response ---

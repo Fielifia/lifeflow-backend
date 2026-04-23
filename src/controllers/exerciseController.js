@@ -61,6 +61,13 @@ export const getExercises = async (req, res) => {
   }
 }
 
+/**
+ * Get exercise by id.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
 export const getExerciseById = async (req, res) => {
   try {
     const { id } = req.params

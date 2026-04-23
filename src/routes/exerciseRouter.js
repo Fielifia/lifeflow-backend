@@ -5,7 +5,10 @@
  */
 import express from 'express'
 import { authMiddleware } from '../middleware/auth.js'
-import { getExercises, getExerciseById } from '../controllers/exerciseController.js'
+import {
+  getExercises,
+  getExerciseById,
+} from '../controllers/exerciseController.js'
 
 const router = express.Router()
 
