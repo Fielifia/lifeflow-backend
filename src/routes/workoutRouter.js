@@ -18,7 +18,7 @@ const router = express.Router()
  */
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { exercises = [], name, notes } = req.body
+    const { exercises = [], notes, duration } = req.body
 
     const sanitizedExercises = exercises.map((ex) => ({
       ...ex,
@@ -31,9 +31,9 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const workout = await Workout.create({
       user: req.userId,
-      name,
-      exercises: sanitizedExercises,
+      exercises,
       notes,
+      duration,
     })
 
     return res.status(201).json({
