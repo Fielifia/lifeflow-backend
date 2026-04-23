@@ -9,10 +9,12 @@ import mongoose from 'mongoose'
 const setSchema = new mongoose.Schema({
   reps: {
     type: Number,
+    required: true,
   },
   weight: {
     type: Number,
     default: 0,
+    min: 0,
   },
   completed: {
     type: Boolean,
@@ -22,7 +24,8 @@ const setSchema = new mongoose.Schema({
 
 const exerciseSchema = new mongoose.Schema({
   exerciseId: {
-    type: String, // could be ObjectId if you want relation later
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Exercise',
     required: true,
   },
   name: {
@@ -36,8 +39,12 @@ const exerciseSchema = new mongoose.Schema({
   rest: {
     type: Number,
     default: 120,
+    min: 0,
   },
-  notes: String,
+  notes: {
+    type: String,
+    default: '',
+  },
 })
 
 const workoutSchema = new mongoose.Schema(
@@ -47,13 +54,28 @@ const workoutSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+
+    name: {
+      type: String,
+      default: '',
+    },
+
     exercises: {
       type: [exerciseSchema],
       default: [],
     },
-    notes: String,
+
+    notes: {
+      type: String,
+      default: '',
+    },
+
+    date: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 )
 
 export default mongoose.model('Workout', workoutSchema)

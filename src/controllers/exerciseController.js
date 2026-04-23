@@ -19,7 +19,7 @@ export const getExercises = async (req, res) => {
     const { equipment, muscle, search } = req.query
 
     page = Math.max(1, parseInt(page))
-    limit = Math.min(100, Math.max(1, parseInt(limit))) // cap på 100
+    limit = Math.min(1000, Math.max(1, parseInt(limit)))
 
     const query = {}
 
@@ -41,6 +41,8 @@ export const getExercises = async (req, res) => {
     const exercises = await Exercise.find(query)
       .skip((page - 1) * limit)
       .limit(limit)
+      .lean()
+      .sort({ name: 1 })
 
     const total = await Exercise.countDocuments(query)
 
@@ -55,6 +57,26 @@ export const getExercises = async (req, res) => {
 
     res.status(500).json({
       error: 'Failed to fetch exercises',
+    })
+  }
+}
+
+export const getExerciseById = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const exercise = await Exercise.findById(id)
+
+    if (!exercise) {
+      return res.status(404).json({ error: 'Exercise not found' })
+    }
+
+    res.status(200).json(exercise)
+  } catch (err) {
+    console.error('Get exercise by ID error:', err)
+
+    res.status(500).json({
+      error: 'Failed to fetch exercise',
     })
   }
 }
