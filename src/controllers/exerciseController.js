@@ -78,11 +78,11 @@ export const getExerciseById = async (req, res) => {
       return res.status(404).json({ error: 'Exercise not found' })
     }
 
-    res.status(200).json(exercise)
+    return res.status(200).json(exercise)
   } catch (err) {
     console.error('Get exercise by ID error:', err)
 
-    res.status(500).json({
+    return res.status(500).json({
       error: 'Failed to fetch exercise',
     })
   }

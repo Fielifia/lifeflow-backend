@@ -81,7 +81,7 @@ const workoutSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  { timestamps: true },
+  { timestamps: true }
 )
 
 export default mongoose.model('Workout', workoutSchema)
