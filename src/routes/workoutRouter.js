@@ -22,7 +22,7 @@ router.post('/', authMiddleware, async (req, res) => {
 
     const sanitizedExercises = exercises.map((ex) => ({
       ...ex,
-      sets: ex.sets.map((s) => ({
+      sets: (ex.sets || []).map((s) => ({
         reps: Number(s.reps) || 8,
         weight: Number(s.weight) || 0,
         completed: Boolean(s.completed),
