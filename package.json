@@ -5,7 +5,9 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "node src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "lint": "npx eslint ./src || exit 0",
+    "lint:fix": "npx eslint ./src --fix || exit 0"
   },
   "repository": {
     "type": "git",
@@ -23,5 +25,18 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.4.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@lnu/eslint-config": "^2.0.6",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "eslint": "^10.2.1",
+    "eslint-plugin-jsdoc": "^62.9.0",
+    "eslint-plugin-n": "^17.24.0",
+    "eslint-plugin-regexp": "^3.1.0",
+    "eslint-plugin-security": "^4.0.0",
+    "eslint-plugin-sort-destructure-keys": "^3.0.0",
+    "globals": "^17.5.0",
+    "nodemon": "^3.1.14"
   }
 }

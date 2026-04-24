@@ -4,19 +4,19 @@
  * @module routes/index
  */
 import express from 'express'
-import { getTestMessage } from '../controllers/testController.js'
 import authRoutes from './auth.js'
-import workoutRoutes from './workouts.js'
+import workoutRoutes from './workoutRouter.js'
+import exerciseRouter from './exerciseRouter.js'
 
 const router = express.Router()
-
-// --- Test route ---
-router.get('/', getTestMessage)
 
 // --- Auth routes ---
 router.use('/auth', authRoutes)
 
 // --- Workout routes ---
 router.use('/workouts', workoutRoutes)
+
+// --- Exercise routes ---
+router.use('/exercises', exerciseRouter)
 
 export default router
