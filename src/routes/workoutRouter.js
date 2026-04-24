@@ -6,6 +6,7 @@
 import express from 'express'
 import Workout from '../models/Workout.js'
 import { authMiddleware } from '../middleware/auth.js'
+import mongoose from 'mongoose'
 
 const router = express.Router()
 
@@ -19,6 +20,14 @@ const router = express.Router()
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const { duration, exercises = [], notes } = req.body
+
+    for (const ex of exercises) {
+      if (!mongoose.Types.ObjectId.isValid(ex.exerciseId)) {
+        return res.status(400).json({
+          error: 'Invalid exerciseId',
+        })
+      }
+    }
 
     const sanitizedExercises = exercises.map((ex) => ({
       ...ex,
