@@ -13,6 +13,6 @@ import {
 const router = express.Router()
 
 router.get('/:id', getExerciseById)
-router.get('/', authMiddleware, getExercises)
+router.get('/', getExercises)
 
 export default router
