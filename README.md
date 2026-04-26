@@ -1,6 +1,31 @@
 # LifeFlow Backend
 Backend API for the LifeFlow Fitness project.
+This API handles workout tracking, user data and exercise management for the LifeFlow Fitness application.
+
 This is a Node.js + Express server that will power the LifeFlow application.
+
+## Features
+- User authentication (planned)
+- Workout logging
+- Exercise management
+- REST API endpoints
+ 
+## API Endpoints
+
+### GET /workouts
+Get all workouts
+
+### POST /workouts
+Create a new workout
+
+### GET /exercises
+Get available exercises
+
+## Future improvements
+- Authentication & authorization
+- Database integration
+- Automated testing
+- CI/CD pipeline
 
 ## Requirements
 - Node.js (recommended v18+)

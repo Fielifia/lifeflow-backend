@@ -7,7 +7,7 @@
 import Exercise from '../models/Exercise.js'
 
 /**
- * Get exercises with search, filters, and pagination
+ * Get all exercises with search, filters, and pagination
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -18,23 +18,23 @@ export const getExercises = async (req, res) => {
     let { limit = 20, page = 1 } = req.query
     const { equipment, muscle, search } = req.query
 
-    page = Math.max(1, parseInt(page))
-    limit = Math.min(1000, Math.max(1, parseInt(limit)))
+    page = Math.max(1, parseInt(page) || 1)
+    limit = Math.min(100, Math.max(1, parseInt(limit) || 20))
 
     const query = {}
 
-    if (search && search.trim() !== '') {
+    if (search?.trim()) {
       query.name = {
         $regex: search.trim(),
         $options: 'i',
       }
     }
 
-    if (muscle && muscle.trim() !== '') {
+    if (muscle?.trim()) {
       query.target = muscle.trim()
     }
 
-    if (equipment && equipment.trim() !== '') {
+    if (equipment?.trim()) {
       query.equipment = equipment.trim()
     }
 
@@ -62,7 +62,7 @@ export const getExercises = async (req, res) => {
 }
 
 /**
- * Get exercise by id.
+ * Get a single exercise by id.
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -72,7 +72,7 @@ export const getExerciseById = async (req, res) => {
   try {
     const { id } = req.params
 
-    const exercise = await Exercise.findById(id)
+    const exercise = await Exercise.findById(id).lean()
 
     if (!exercise) {
       return res.status(404).json({ error: 'Exercise not found' })
