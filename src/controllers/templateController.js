@@ -39,13 +39,36 @@ export const createTemplate = async (req, res) => {
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<void>} Sends JSON response
  */
-export const getTemplates = async (req, res) => {
-  const templates = await Template.find({ user: req.user.id })
-    .lean()
-    .sort({ createdAt: -1 })
-
-  res.json(templates)
-}
+  export const getTemplates = async (req, res) => {
+    try {
+      console.log('🔥 GET TEMPLATES CONTROLLER HIT')
+      let { page = 1, limit = 5 } = req.query
+  
+      page = Math.max(1, parseInt(page))
+      limit = Math.min(100, Math.max(1, parseInt(limit)))
+  
+      const query = { user: req.user.id }
+  
+      const templates = await Template.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean()
+        .select('-__v')
+  
+      const total = await Template.countDocuments(query)
+  
+      res.json({
+        page,
+        limit,
+        total,
+        results: templates,
+      })
+    } catch (err) {
+      console.error('Get templates error:', err)
+      res.status(500).json({ error: 'Failed to fetch templates' })
+    }
+  }
 
 /**
  * Get a workout template by id
@@ -58,16 +81,16 @@ export const getTemplateById = async (req, res) => {
   try {
     const { id } = req.params
 
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid template ID' })
+    }
+
     const template = await Template.findOne({
       _id: id,
       user: req.user.id,
     })
       .lean()
       .select('-__v')
-
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ error: 'Invalid template ID' })
-    }
       
     if (!template) {
       return res.status(404).json({
