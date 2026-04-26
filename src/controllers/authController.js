@@ -16,13 +16,12 @@ import User from '../models/User.js'
  */
 export const registerUser = async (req, res) => {
   try {
-    let { email } = req.body
-    const { password, username } = req.body
+    const password = req.body
+    let { email, username } = req.body
 
-    // --- Normalize email ---
-    email = email.toLowerCase()
+    email = email?.trim().toLowerCase()
+    username = username?.trim()
 
-    // --- Validation ---
     if (!email || !password || !username) {
       return res.status(400).json({
         error: 'Email, username, and password required',
@@ -35,7 +34,6 @@ export const registerUser = async (req, res) => {
       })
     }
 
-    // --- Check duplicate ---
     const existingUser = await User.findOne({ email })
     if (existingUser) {
       return res.status(409).json({
@@ -43,17 +41,14 @@ export const registerUser = async (req, res) => {
       })
     }
 
-    // --- Hash password ---
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // --- Create user ---
     const user = await User.create({
       email,
       password: hashedPassword,
       username,
     })
 
-    // --- Response ---
     return res.status(201).json({
       message: 'User created',
       userId: user._id,
@@ -76,25 +71,21 @@ export const loginUser = async (req, res) => {
     let { email } = req.body
     const { password } = req.body
 
-    // --- Normalize email ---
     email = email.toLowerCase()
 
-    // --- Validate input ---
     if (!email || !password) {
       return res.status(400).json({
         error: 'Email and password required',
       })
     }
 
-    // --- Find user ---
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email }).lean()
     if (!user) {
       return res.status(401).json({
         error: 'Invalid credentials',
       })
     }
 
-    // --- Compare password ---
     const isMatch = await bcrypt.compare(password, user.password)
     if (!isMatch) {
       return res.status(401).json({
@@ -102,7 +93,6 @@ export const loginUser = async (req, res) => {
       })
     }
 
-    // --- Generate token ---
     const token = jwt.sign(
       {
         userId: user._id,
@@ -112,11 +102,11 @@ export const loginUser = async (req, res) => {
       { expiresIn: '7d' }
     )
 
-    // --- Response ---
     return res.status(200).json({
       message: 'Login successful',
       token,
       user: {
+        id: user._id,
         email: user.email,
         username: user.username,
       },

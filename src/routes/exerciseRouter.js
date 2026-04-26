@@ -4,7 +4,6 @@
  * @module routes/exercises
  */
 import express from 'express'
-import { authMiddleware } from '../middleware/auth.js'
 import {
   getExercises,
   getExerciseById,
