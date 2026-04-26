@@ -31,7 +31,6 @@ export const createTemplate = async (req, res) => {
   }
 }
 
-
 /**
  * Get a workout template
  *
@@ -39,36 +38,37 @@ export const createTemplate = async (req, res) => {
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<void>} Sends JSON response
  */
-  export const getTemplates = async (req, res) => {
-    try {
-      console.log('🔥 GET TEMPLATES CONTROLLER HIT')
-      let { page = 1, limit = 5 } = req.query
-  
-      page = Math.max(1, parseInt(page))
-      limit = Math.min(100, Math.max(1, parseInt(limit)))
-  
-      const query = { user: req.user.id }
-  
-      const templates = await Template.find(query)
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit)
-        .lean()
-        .select('-__v')
-  
-      const total = await Template.countDocuments(query)
-  
-      res.json({
-        page,
-        limit,
-        total,
-        results: templates,
-      })
-    } catch (err) {
-      console.error('Get templates error:', err)
-      res.status(500).json({ error: 'Failed to fetch templates' })
-    }
+export const getTemplates = async (req, res) => {
+  try {
+    let { page = 1, limit = 5 } = req.query
+
+    page = Math.max(1, parseInt(page))
+    limit = Math.min(100, Math.max(1, parseInt(limit)))
+
+    const query = { user: req.user.id }
+
+    const templates = await Template.find(query)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean()
+      .select('-__v')
+
+    console.log('TEMPLATES FOUND:', templates.length)
+
+    const total = await Template.countDocuments(query)
+
+    return res.json({
+      page,
+      limit,
+      total,
+      results: templates,
+    })
+  } catch (err) {
+    console.error('Get templates error:', err)
+    return res.status(500).json({ error: 'Failed to fetch templates' })
   }
+}
 
 /**
  * Get a workout template by id
