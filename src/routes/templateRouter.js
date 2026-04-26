@@ -6,7 +6,7 @@
 import express from 'express'
 import { authMiddleware } from '../middleware/auth.js'
 import {
-  createTemplate, getTemplates
+  createTemplate, getTemplates, getTemplateById,
 } from '../controllers/templateController.js'
 
 const router = express.Router()
@@ -15,5 +15,6 @@ router.use(authMiddleware)
 
 router.post('/', createTemplate)
 router.get('/', getTemplates)
+router.get('/:id', getTemplateById)
 
 export default router

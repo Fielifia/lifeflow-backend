@@ -1,4 +1,6 @@
 import Template from '../models/Template.js'
+import mongoose from 'mongoose'
+
 /**
  * Create a workout template
  *
@@ -8,7 +10,7 @@ import Template from '../models/Template.js'
  */
 export const createTemplate = async (req, res) => {
   try {
-    const { name, exercises = [] } = req.body
+    const { exercises = [], name } = req.body
 
     if (!name || name.trim() === '') {
       return res.status(400).json({
@@ -22,10 +24,10 @@ export const createTemplate = async (req, res) => {
       user: req.user.id,
     })
 
-    res.status(201).json(template)
+    return res.status(201).json(template)
   } catch (err) {
     console.error('Create template error:', err)
-    res.status(500).json({ error: 'Failed to create template' })
+    return res.status(500).json({ error: 'Failed to create template' })
   }
 }
 
@@ -43,4 +45,42 @@ export const getTemplates = async (req, res) => {
     .sort({ createdAt: -1 })
 
   res.json(templates)
+}
+
+/**
+ * Get a workout template by id
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const getTemplateById = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const template = await Template.findOne({
+      _id: id,
+      user: req.user.id,
+    })
+      .lean()
+      .select('-__v')
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid template ID' })
+    }
+      
+    if (!template) {
+      return res.status(404).json({
+        error: 'Template not found',
+      })
+    }
+
+    return res.json(template)
+  } catch (err) {
+    console.error('Get template by ID error:', err)
+
+    return res.status(500).json({
+      error: 'Failed to fetch template',
+    })
+  }
 }
