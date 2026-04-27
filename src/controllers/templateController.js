@@ -40,7 +40,7 @@ export const createTemplate = async (req, res) => {
  */
 export const getTemplates = async (req, res) => {
   try {
-    let { page = 1, limit = 5 } = req.query
+    let { limit = 5, page = 1 } = req.query
 
     page = Math.max(1, parseInt(page))
     limit = Math.min(100, Math.max(1, parseInt(limit)))
