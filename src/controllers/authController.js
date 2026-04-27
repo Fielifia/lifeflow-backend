@@ -16,13 +16,12 @@ import User from '../models/User.js'
  */
 export const registerUser = async (req, res) => {
   try {
-    const password = req.body
-    let { email, username } = req.body
+    const { email, username, password } = req.body
 
-    email = email?.trim().toLowerCase()
-    username = username?.trim()
+    const normalizeEmail = email?.trim().toLowerCase()
+    const normalizedUsername = username?.trim()
 
-    if (!email || !password || !username) {
+    if (!normalizeEmail || !password || !normalizedUsername) {
       return res.status(400).json({
         error: 'Email, username, and password required',
       })
@@ -34,7 +33,7 @@ export const registerUser = async (req, res) => {
       })
     }
 
-    const existingUser = await User.findOne({ email })
+    const existingUser = await User.findOne({ email: normalizeEmail })
     if (existingUser) {
       return res.status(409).json({
         error: 'Email already in use',
@@ -44,9 +43,9 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const user = await User.create({
-      email,
+      email: normalizeEmail,
       password: hashedPassword,
-      username,
+      username: normalizedUsername,
     })
 
     return res.status(201).json({
@@ -68,18 +67,17 @@ export const registerUser = async (req, res) => {
  */
 export const loginUser = async (req, res) => {
   try {
-    let { email } = req.body
-    const { password } = req.body
+    const { email, password } = req.body
 
-    email = email.toLowerCase()
+    const normalizeEmail = email?.trim().toLowerCase()
 
-    if (!email || !password) {
+    if (!normalizeEmail || !password) {
       return res.status(400).json({
         error: 'Email and password required',
       })
     }
 
-    const user = await User.findOne({ email }).lean()
+    const user = await User.findOne({ email: normalizeEmail }).lean()
     if (!user) {
       return res.status(401).json({
         error: 'Invalid credentials',
