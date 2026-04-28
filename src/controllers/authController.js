@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
     const existingUser = await User.findOne({ email: normalizeEmail })
     if (existingUser) {
       return res.status(409).json({
-        error: 'Email already in use',
+        error: 'Email already exists',
       })
     }
 
@@ -58,7 +58,7 @@ export const registerUser = async (req, res) => {
     )
 
     return res.status(201).json({
-      message: 'User created',
+      message: 'User created successfully',
       token,
       user: {
         id: user._id,
