@@ -16,7 +16,7 @@ import User from '../models/User.js'
  */
 export const registerUser = async (req, res) => {
   try {
-    const { email, username, password } = req.body
+    const { email, password, username } = req.body
 
     const normalizeEmail = email?.trim().toLowerCase()
     const normalizedUsername = username?.trim()
@@ -54,7 +54,7 @@ export const registerUser = async (req, res) => {
         email: user.email,
       },
       process.env.JWT_SECRET,
-      { expiresIn: '7d' },
+      { expiresIn: '7d' }
     )
 
     return res.status(201).json({

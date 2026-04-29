@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 
 const templateExerciseSchema = new mongoose.Schema({
   exerciseId: {
-    type: mongoose.Schema.Types.ObjectId, // 👈 ändra från String
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Exercise',
     required: true,
   },
