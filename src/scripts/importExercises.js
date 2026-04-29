@@ -103,7 +103,6 @@ async function resetCollection() {
     await Exercise.deleteMany({})
     await mongoose.connection.dropCollection('exercises')
   } catch (err) {
-    // Collection may not exist yet → ignore
     if (err.codeName !== 'NamespaceNotFound') {
       throw err
     }
