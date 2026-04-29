@@ -36,8 +36,6 @@ export const authMiddleware = (req, res, next) => {
       email: decoded.email,
     }
 
-    console.log('TOKEN:', token)
-    console.log('SECRET:', process.env.JWT_SECRET)
     return next()
   } catch (err) {
     console.error('Auth error:', err)

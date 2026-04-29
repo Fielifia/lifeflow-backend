@@ -18,9 +18,18 @@ export const createTemplate = async (req, res) => {
       })
     }
 
+    const formattedExercises = exercises.map((e) => ({
+      exerciseId: e.exerciseId,
+      name: e.name,
+      images: e.images || [],
+      sets: e.sets || [],
+      rest: e.rest ?? 120,
+      notes: e.notes ?? '',
+    }))
+
     const template = await Template.create({
       name,
-      exercises,
+      exercises: formattedExercises,
       user: req.user.id,
     })
 
@@ -53,8 +62,6 @@ export const getTemplates = async (req, res) => {
       .limit(limit)
       .lean()
       .select('-__v')
-
-    console.log('TEMPLATES FOUND:', templates.length)
 
     const total = await Template.countDocuments(query)
 
