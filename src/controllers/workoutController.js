@@ -5,7 +5,6 @@
  */
 
 import Workout from '../models/Workout.js'
-console.log('WORKOUT CONTROLLER LOADED')
 /**
  * Get all workouts for the authenticated user (with pagination)
  *
