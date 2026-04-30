@@ -29,19 +29,28 @@ const exerciseSchema = new mongoose.Schema({
     ref: 'Exercise',
     required: true,
   },
+
   name: {
     type: String,
     required: true,
   },
+
+  images: {
+    type: [String],
+    default: [],
+  },
+
   sets: {
     type: [setSchema],
     default: [],
   },
+
   rest: {
     type: Number,
     default: 120,
     min: 0,
   },
+
   notes: {
     type: String,
     default: '',

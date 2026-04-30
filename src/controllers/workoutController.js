@@ -5,7 +5,7 @@
  */
 
 import Workout from '../models/Workout.js'
-
+console.log('WORKOUT CONTROLLER LOADED')
 /**
  * Get all workouts for the authenticated user (with pagination)
  *
@@ -116,11 +116,22 @@ export const createWorkout = async (req, res) => {
       })
     }
 
+    const formattedExercises = exercises.map((e) => ({
+      exerciseId: e.exerciseId,
+      name: e.name,
+      images: e.images || [],
+      sets: e.sets || [],
+      rest: e.rest ?? 120,
+      notes: e.notes ?? '',
+    }))
+
     const workout = await Workout.create({
       name,
-      exercises: exercises || [],
+      exercises: formattedExercises,
       user: userId,
     })
+
+    console.log('BODY:', req.body)
 
     return res.status(201).json(workout)
   } catch (err) {
@@ -128,6 +139,62 @@ export const createWorkout = async (req, res) => {
 
     return res.status(500).json({
       error: 'Failed to create workout',
+    })
+  }
+}
+
+/**
+ * Update a workout
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const updateWorkout = async (req, res) => {
+  try {
+    const { id } = req.params
+    const userId = req.user.id
+    const { exercises, name } = req.body
+
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        error: 'Workout name is required',
+      })
+    }
+
+    const formattedExercises = exercises.map((e) => ({
+      exerciseId: e.exerciseId,
+      name: e.name,
+      images: e.images || [],
+      sets: e.sets || [],
+      rest: e.rest ?? 120,
+      notes: e.notes ?? '',
+    }))
+
+    const updated = await Workout.findOneAndUpdate(
+      { _id: id, user: userId },
+      {
+        name,
+        exercises: formattedExercises,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+
+    if (!updated) {
+      return res.status(404).json({
+        error: 'Workout not found',
+      })
+    }
+
+    return res.status(200).json(updated)
+  } catch (err) {
+    console.error('Update workout error:', err)
+
+    return res.status(500).json({
+      error: 'Failed to update workout',
     })
   }
 }

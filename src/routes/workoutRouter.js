@@ -5,7 +5,7 @@
  */
 import express from 'express'
 import { authMiddleware } from '../middleware/auth.js'
-import { getWorkouts, getWorkoutById, createWorkout, deleteWorkout, getLatestWorkout } from '../controllers/workoutController.js'
+import { getWorkouts, getWorkoutById, createWorkout, deleteWorkout, updateWorkout, getLatestWorkout } from '../controllers/workoutController.js'
 
 const router = express.Router()
 
@@ -15,6 +15,7 @@ router.get('/', getWorkouts)
 router.post('/', createWorkout)
 
 router.get('/:id', getWorkoutById)
+router.put('/:id', updateWorkout)
 router.delete('/:id', deleteWorkout)
 
 router.get('/latest', getLatestWorkout)

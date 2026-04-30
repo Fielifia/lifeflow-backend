@@ -114,3 +114,65 @@ export const getTemplateById = async (req, res) => {
     })
   }
 }
+
+/**
+ * Update a workout template
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const updateTemplate = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { exercises = [], name } = req.body
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid template ID' })
+    }
+
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        error: 'Template name is required',
+      })
+    }
+
+    // 🔁 samma struktur som createTemplate
+    const formattedExercises = exercises.map((e) => ({
+      exerciseId: e.exerciseId,
+      name: e.name,
+      images: e.images || [],
+      sets: e.sets || [],
+      rest: e.rest ?? 120,
+      notes: e.notes ?? '',
+    }))
+
+    const updated = await Template.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      {
+        name,
+        exercises: formattedExercises,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    )
+      .lean()
+      .select('-__v')
+
+    if (!updated) {
+      return res.status(404).json({
+        error: 'Template not found',
+      })
+    }
+
+    return res.status(200).json(updated)
+  } catch (err) {
+    console.error('Update template error:', err)
+
+    return res.status(500).json({
+      error: 'Failed to update template',
+    })
+  }
+}
