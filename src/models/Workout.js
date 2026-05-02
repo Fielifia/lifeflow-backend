@@ -33,6 +33,10 @@ const exerciseSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  images: {
+    type: [String],
+    default: [],
+  },
   sets: {
     type: [setSchema],
     default: [],
