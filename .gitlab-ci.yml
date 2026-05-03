@@ -1,0 +1,19 @@
+stages:
+  - install
+  - lint
+
+image: node:18
+
+cache:
+  paths:
+    - node_modules/
+
+install:
+  stage: install
+  script:
+    - npm install
+
+lint:
+  stage: lint
+  script:
+    - npm run lint
