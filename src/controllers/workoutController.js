@@ -126,7 +126,7 @@ export const getPreviousExercise = async (req, res) => {
     }
 
     const exercise = workout.exercises.find(
-      (e) => e.exerciseId.toString() === exerciseId,
+      (e) => e.exerciseId.toString() === exerciseId
     )
 
     if (!exercise) {
@@ -149,7 +149,7 @@ export const getPreviousExercise = async (req, res) => {
     })
   } catch (err) {
     console.error(err)
-    res.status(500).json({ error: 'Failed to fetch previous exercise' })
+    return res.status(500).json({ error: 'Failed to fetch previous exercise' })
   }
 }
 
@@ -200,7 +200,7 @@ export const getWorkoutById = async (req, res) => {
 export const updateWorkout = async (req, res) => {
   try {
     const { id } = req.params
-    const { name, exercises, duration } = req.body
+    const { duration, exercises, name } = req.body
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid workout ID' })
@@ -239,7 +239,7 @@ export const updateWorkout = async (req, res) => {
     const updated = await Workout.findOneAndUpdate(
       { _id: id, user: req.user.id },
       req.body,
-      { new: true, runValidators: true },
+      { new: true, runValidators: true }
     ).lean()
 
     if (!updated) {
