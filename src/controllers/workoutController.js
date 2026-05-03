@@ -1,13 +1,43 @@
-/**
- * Workout controller handling CRUD operations for user workouts.
- *
- * @module controllers/workoutController
- */
 
 import Workout from '../models/Workout.js'
+import mongoose from 'mongoose'
 
 /**
- * Get all workouts for the authenticated user (with pagination)
+ * Create a new workout
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const createWorkout = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const { exercises, name } = req.body
+
+    if (!name || name.trim() === '') {
+      return res.status(400).json({
+        error: 'Workout name is required',
+      })
+    }
+
+    const workout = await Workout.create({
+      name,
+      exercises: exercises || [],
+      user: userId,
+    })
+
+    return res.status(201).json(workout)
+  } catch (err) {
+    console.error('Create workout error:', err)
+
+    return res.status(500).json({
+      error: 'Failed to create workout',
+    })
+  }
+}
+
+/**
+ * Get all workouts
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -45,6 +75,29 @@ export const getWorkouts = async (req, res) => {
   }
 }
 
+/**
+ * Get the latest workout
+ * 
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const getLatestWorkout = async (req, res) => {
+  try {
+    const workout = await Workout.findOne({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .lean()
+
+    if (!workout) {
+      return res.status(404).json({ error: 'No workouts found' })
+    }
+
+    return res.json(workout)
+  } catch (err) {
+    console.error('Get latest workout error:', err)
+    return res.status(500).json({ error: 'Failed to fetch workout' })
+  }
+}
 
 /**
  * Get a single workout by id
@@ -57,6 +110,10 @@ export const getWorkoutById = async (req, res) => {
   try {
     const { id } = req.params
     const userId = req.user.id
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid workout ID' })
+    }
 
     const workout = await Workout.findOne({
       _id: id,
@@ -80,55 +137,30 @@ export const getWorkoutById = async (req, res) => {
 }
 
 /**
- * Get the latest workout
- * 
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<void>} Sends JSON response
- */
-export const getLatestWorkout = async (req, res) => {
-  const workout = await Workout.findOne({ user: req.user.id })
-    .sort({ createdAt: -1 })
-    .lean()
-
-  if (!workout) {
-    return res.status(404).json({ error: 'No workouts found' })
-  }
-
-  return res.json(workout)
-}
-
-/**
- * Create a new workout
+ * Update a workout by id
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<void>} Sends JSON response
  */
-export const createWorkout = async (req, res) => {
+export const updateWorkout = async (req, res) => {
   try {
-    const userId = req.user.id
-    const { exercises, name } = req.body
+    const { id } = req.params
 
-    if (!name || name.trim() === '') {
-      return res.status(400).json({
-        error: 'Workout name is required',
-      })
+    const updated = await Workout.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      req.body,
+      { new: true }
+    ).lean()
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Workout not found' })
     }
 
-    const workout = await Workout.create({
-      name,
-      exercises: exercises || [],
-      user: userId,
-    })
-
-    return res.status(201).json(workout)
+    return res.json(updated)
   } catch (err) {
-    console.error('Create workout error:', err)
-
-    return res.status(500).json({
-      error: 'Failed to create workout',
-    })
+    console.error('Update workout error:', err)
+    return res.status(500).json({ error: 'Failed to update workout' })
   }
 }
 

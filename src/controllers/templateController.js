@@ -2,7 +2,7 @@ import Template from '../models/Template.js'
 import mongoose from 'mongoose'
 
 /**
- * Create a workout template
+ * Create a new workout template
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -41,7 +41,7 @@ export const createTemplate = async (req, res) => {
 }
 
 /**
- * Get a workout template
+ * Get all workout templates
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -78,7 +78,32 @@ export const getTemplates = async (req, res) => {
 }
 
 /**
- * Get a workout template by id
+ * Get the latest workout template
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const getLatestTemplate = async (req, res) => {
+  try {
+    const template = await Template.findOne({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .lean()
+      .select('-__v')
+
+    if (!template) {
+      return res.status(404).json({ error: 'No templates found' })
+    }
+
+    return res.json(template)
+  } catch (err) {
+    console.error('Get latest template error:', err)
+    return res.status(500).json({ error: 'Failed to fetch template' })
+  }
+}
+
+/**
+ * Get a single workout template by id
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -87,6 +112,7 @@ export const getTemplates = async (req, res) => {
 export const getTemplateById = async (req, res) => {
   try {
     const { id } = req.params
+    const userId = req.user.id
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid template ID' })
@@ -94,11 +120,11 @@ export const getTemplateById = async (req, res) => {
 
     const template = await Template.findOne({
       _id: id,
-      user: req.user.id,
+      user: userId,
     })
       .lean()
       .select('-__v')
-      
+
     if (!template) {
       return res.status(404).json({
         error: 'Template not found',
@@ -112,5 +138,64 @@ export const getTemplateById = async (req, res) => {
     return res.status(500).json({
       error: 'Failed to fetch template',
     })
+  }
+}
+
+/**
+ * Update a workout template by id
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const updateTemplate = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid template ID' })
+    }
+
+    const updated = await Template.findOneAndUpdate(
+      { _id: id, user: req.user.id },
+      req.body,
+      { new: true }
+    ).lean()
+
+    if (!updated) {
+      return res.status(404).json({ error: 'Template not found' })
+    }
+
+    return res.json(updated)
+  } catch (err) {
+    console.error('Update template error:', err)
+    return res.status(500).json({ error: 'Failed to update template' })
+  }
+}
+
+/**
+ * Delete a workout template
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const deleteTemplate = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const deleted = await Template.findOneAndDelete({
+      _id: id,
+      user: req.user.id,
+    })
+
+    if (!deleted) {
+      return res.status(404).json({ error: 'Template not found' })
+    }
+
+    return res.json({ message: 'Template deleted' })
+  } catch (err) {
+    console.error('Delete template error:', err)
+    return res.status(500).json({ error: 'Failed to delete template' })
   }
 }

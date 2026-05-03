@@ -4,21 +4,30 @@
  * @module routes/workouts
  */
 import express from 'express'
+import {
+  createWorkout,
+  getWorkouts,
+  getLatestWorkout,
+  getWorkoutById,
+  updateWorkout,
+  deleteWorkout,
+} from '../controllers/workoutController.js'
 import { authMiddleware } from '../middleware/auth.js'
-import { getWorkouts, getWorkoutById, createWorkout, deleteWorkout, getLatestWorkout } from '../controllers/workoutController.js'
 
 const router = express.Router()
 
 router.use(authMiddleware)
 
+// Collection routes
 router.get('/', getWorkouts)
 router.post('/', createWorkout)
 
-router.get('/:id', getWorkoutById)
-router.delete('/:id', deleteWorkout)
-
+// Specific static routes
 router.get('/latest', getLatestWorkout)
 
-
+// ID-based routes
+router.get('/:id', getWorkoutById)
+router.put('/:id', updateWorkout)
+router.delete('/:id', deleteWorkout)
 
 export default router
