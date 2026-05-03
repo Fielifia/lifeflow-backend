@@ -13,9 +13,6 @@ yarn-error.log*
 .env.local
 .env.*.local
 
-# npm package lock
-package-lock.json
-
 # Optional: OS files
 .DS_Store
 Thumbs.db
