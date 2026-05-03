@@ -4,16 +4,17 @@ stages:
 
 image: node:22
 
-cache:
-  paths:
-    - node_modules/
-
 install:
   stage: install
   script:
-    - npm install
+    - npm ci
+  artifacts:
+    paths:
+      - node_modules/
 
 lint:
   stage: lint
+  dependencies:
+    - install
   script:
     - npm run lint
