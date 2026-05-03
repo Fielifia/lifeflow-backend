@@ -146,11 +146,46 @@ export const getWorkoutById = async (req, res) => {
 export const updateWorkout = async (req, res) => {
   try {
     const { id } = req.params
+    const { name, exercises, duration } = req.body
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: 'Invalid workout ID' })
+    }
+
+    if (name !== undefined && name.trim() === '') {
+      return res.status(400).json({ error: 'Workout name cannot be empty' })
+    }
+
+    if (exercises !== undefined) {
+      if (!Array.isArray(exercises) || exercises.length === 0) {
+        return res
+          .status(400)
+          .json({ error: 'At least one exercise is required' })
+      }
+
+      for (const ex of exercises) {
+        if (!ex.exerciseId || !ex.name) {
+          return res.status(400).json({
+            error: 'Exercise must have id and name',
+          })
+        }
+
+        if (!Array.isArray(ex.sets) || ex.sets.length === 0) {
+          return res.status(400).json({
+            error: 'Each exercise must have at least one set',
+          })
+        }
+      }
+    }
+
+    if (duration !== undefined && duration < 0) {
+      return res.status(400).json({ error: 'Duration must be positive' })
+    }
 
     const updated = await Workout.findOneAndUpdate(
       { _id: id, user: req.user.id },
       req.body,
-      { new: true }
+      { new: true, runValidators: true },
     ).lean()
 
     if (!updated) {
