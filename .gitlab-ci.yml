@@ -2,7 +2,7 @@ stages:
   - install
   - lint
 
-image: node:18
+image: node:22
 
 cache:
   paths:
