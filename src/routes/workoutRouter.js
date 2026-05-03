@@ -8,6 +8,7 @@ import {
   createWorkout,
   getWorkouts,
   getLatestWorkout,
+  getPreviousExercise,
   getWorkoutById,
   updateWorkout,
   deleteWorkout,
@@ -26,6 +27,7 @@ router.post('/', createWorkout)
 router.get('/latest', getLatestWorkout)
 
 // ID-based routes
+router.get('/exercise/:exerciseId/previous', getPreviousExercise)
 router.get('/:id', getWorkoutById)
 router.put('/:id', updateWorkout)
 router.delete('/:id', deleteWorkout)
