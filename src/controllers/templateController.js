@@ -156,11 +156,33 @@ export const updateTemplate = async (req, res) => {
       return res.status(400).json({ error: 'Invalid template ID' })
     }
 
+    if (!req.body.name || req.body.name.trim() === '') {
+      return res.status(400).json({ error: 'Name is required' })
+    }
+
+    if (
+      req.body.exercises !== undefined &&
+      !Array.isArray(req.body.exercises)
+    ) {
+      return res.status(400).json({ error: 'Exercises must be an array' })
+    }
+
+    if (req.body.exercises) {
+      for (const ex of req.body.exercises) {
+        if (!ex.exerciseId || !ex.name) {
+          return res
+            .status(400)
+            .json({ error: 'Exercise must have id and name' })
+        }
+      }
+    }
+
     const updated = await Template.findOneAndUpdate(
       { _id: id, user: req.user.id },
       req.body,
       { new: true }
     ).lean()
+    
 
     if (!updated) {
       return res.status(404).json({ error: 'Template not found' })
