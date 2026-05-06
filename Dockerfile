@@ -1,12 +1,26 @@
-FROM node:22
+# --- Base ---
+FROM node:lts-bookworm-slim AS base
+WORKDIR /usr/src/app
+COPY package*.json ./
 
+# --- Dev ---
+FROM base AS development
+RUN npm install
+COPY . .
+CMD ["npm", "run", "dev"]
+
+# --- Deps ---
+FROM base AS deps
+RUN npm ci --omit=dev
+
+# --- Prod ---
+FROM node:lts-bookworm-slim AS production
 WORKDIR /usr/src/app
 
-COPY package*.json ./
-RUN npm install
-
+COPY --from=deps /usr/src/app/node_modules ./node_modules
 COPY . .
 
+ENV NODE_ENV=production
 EXPOSE 5000
 
-CMD ["npm", "run", "dev"]
+CMD ["node", "src/server.js"]
