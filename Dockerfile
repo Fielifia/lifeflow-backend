@@ -7,7 +7,7 @@ COPY package*.json ./
 FROM base AS development
 RUN npm install
 COPY . .
-CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "sleep 3 && node src/scripts/seedIfEmpty.js || true && npm run dev"]
 
 # --- Deps ---
 FROM base AS deps
@@ -23,4 +23,4 @@ COPY . .
 ENV NODE_ENV=production
 EXPOSE 5000
 
-CMD ["node", "src/server.js"]
+CMD ["sh", "-c", "node src/scripts/seedIfEmpty.js || true && node src/server.js"]

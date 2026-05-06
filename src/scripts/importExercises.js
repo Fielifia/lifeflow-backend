@@ -145,7 +145,8 @@ async function importExercises() {
   }
 }
 
-/**
- * Execute script
- */
-importExercises()
+export default importExercises
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  importExercises()
+}
