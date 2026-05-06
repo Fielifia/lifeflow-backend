@@ -12,7 +12,7 @@ import mongoose from 'mongoose'
 export const createWorkout = async (req, res) => {
   try {
     const userId = req.user.id
-    const { exercises, name } = req.body
+    const { exercises, name, duration, notes } = req.body
 
     if (!name || name.trim() === '') {
       return res.status(400).json({
@@ -24,6 +24,8 @@ export const createWorkout = async (req, res) => {
       name,
       exercises: exercises || [],
       user: userId,
+      duration: duration || 0,
+      notes: notes || '',
     })
 
     return res.status(201).json(workout)
@@ -200,7 +202,7 @@ export const getWorkoutById = async (req, res) => {
 export const updateWorkout = async (req, res) => {
   try {
     const { id } = req.params
-    const { duration, exercises, name } = req.body
+    const { exercises, name, duration, notes } = req.body
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid workout ID' })
