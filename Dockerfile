@@ -25,4 +25,4 @@ EXPOSE 5000
 
 USER node
 
-CMD ["sh", "-c", "node src/scripts/seedIfEmpty.js || true && node src/server.js"]
+CMD ["sh", "-c", "sleep 5 && (node src/scripts/seedIfEmpty.js || true) && node src/server.js"]
