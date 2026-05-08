@@ -7,24 +7,28 @@ import mongoose from 'mongoose'
  *
  * Responsibilities:
  * - Compare new workout sets against previous workouts
- * - Detect highest logged weight per exercise
- * - Mark sets as personal bests when exceeded
+ * - Detect exercise progression based on:
+ *   - Higher weight
+ *   - Higher reps at the same weight
+ * - Mark qualifying sets as personal bests
+ * - Count total personal bests for the workout
  *
  * Notes:
  * - Only completed sets are considered
- * - Personal best currently based on highest weight only
- * - Apply personalBest flags to qualifying sets
+ * - Personal bests are evaluated per exercise
+ * - Set-level personalBest flags are applied automatically
  *
  * @param {string} userId - Current user id
  * @param {Array<object>} exercises - Workout exercises
- * @returns {Promise<Array<object>>} Exercises with PB flags applied
+ * @returns {Promise<object>} Updated exercises and PB count
  */
 const detectPersonalBests = async (userId, exercises) => {
   const updatedExercises = []
   let totalPersonalBests = 0
 
   for (const exercise of exercises) {
-    let previousBest = 0
+    let previousBestWeight = 0
+    let previousBestReps = 0
 
     const previousWorkouts = await Workout.find({
       user: userId,
@@ -41,17 +45,37 @@ const detectPersonalBests = async (userId, exercises) => {
       }
 
       for (const set of previousExercise.sets) {
-        if (set.completed && set.weight > previousBest) {
-          previousBest = set.weight
+        if (!set.completed) {
+          continue
+        }
+
+        const weight = Number(set.weight)
+        const reps = Number(set.reps)
+
+        const betterWeight = weight > previousBestWeight
+
+        const betterReps =
+          weight === previousBestWeight && reps > previousBestReps
+
+        if (betterWeight || betterReps) {
+          previousBestWeight = weight
+          previousBestReps = reps
         }
       }
     }
 
     const updatedSets = exercise.sets.map((set) => {
-      const isPersonalBest = set.completed && set.weight > previousBest
+      const weight = Number(set.weight)
+      const reps = Number(set.reps)
+
+      const isPersonalBest =
+        set.completed &&
+        (weight > previousBestWeight ||
+          (weight === previousBestWeight && reps > previousBestReps))
 
       if (isPersonalBest) {
-        previousBest = set.weight
+        previousBestWeight = weight
+        previousBestReps = reps
         totalPersonalBests++
       }
 
