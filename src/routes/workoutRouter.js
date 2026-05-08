@@ -27,7 +27,7 @@ router.post('/', createWorkout)
 router.get('/latest', getLatestWorkout)
 
 // ID-based routes
-router.get('/exercises/:exerciseId/previous', getPreviousExercise)
+router.get('/workouts/:exerciseId/previous', getPreviousExercise)
 router.get('/:id', getWorkoutById)
 router.put('/:id', updateWorkout)
 router.delete('/:id', deleteWorkout)

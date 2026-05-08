@@ -11,7 +11,7 @@ import {
 
 const router = express.Router()
 
-router.get('/:id', getExerciseById)
 router.get('/', getExercises)
+router.get('/:id', getExerciseById)
 
 export default router

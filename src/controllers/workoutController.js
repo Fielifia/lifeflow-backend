@@ -3,6 +3,77 @@ import Workout from '../models/Workout.js'
 import mongoose from 'mongoose'
 
 /**
+ * Detect personal bests for workout sets.
+ *
+ * Responsibilities:
+ * - Compare new workout sets against previous workouts
+ * - Detect highest logged weight per exercise
+ * - Mark sets as personal bests when exceeded
+ *
+ * Notes:
+ * - Only completed sets are considered
+ * - Personal best currently based on highest weight only
+ * - Apply personalBest flags to qualifying sets
+ *
+ * @param {string} userId - Current user id
+ * @param {Array<object>} exercises - Workout exercises
+ * @returns {Promise<Array<object>>} Exercises with PB flags applied
+ */
+const detectPersonalBests = async (userId, exercises) => {
+  const updatedExercises = []
+  let totalPersonalBests = 0
+
+  for (const exercise of exercises) {
+    let previousBest = 0
+
+    const previousWorkouts = await Workout.find({
+      user: userId,
+      'exercises.exerciseId': exercise.exerciseId,
+    }).lean()
+
+    for (const workout of previousWorkouts) {
+      const previousExercise = workout.exercises.find(
+        (e) => e.exerciseId.toString() === exercise.exerciseId.toString()
+      )
+
+      if (!previousExercise) {
+        continue
+      }
+
+      for (const set of previousExercise.sets) {
+        if (set.completed && set.weight > previousBest) {
+          previousBest = set.weight
+        }
+      }
+    }
+
+    const updatedSets = exercise.sets.map((set) => {
+      const isPersonalBest = set.completed && set.weight > previousBest
+
+      if (isPersonalBest) {
+        previousBest = set.weight
+        totalPersonalBests++
+      }
+
+      return {
+        ...set,
+        personalBest: isPersonalBest,
+      }
+    })
+
+    updatedExercises.push({
+      ...exercise,
+      sets: updatedSets,
+    })
+  }
+
+  return {
+    exercises: updatedExercises,
+    personalBests: totalPersonalBests,
+  }
+}
+
+/**
  * Create a new workout
  *
  * @param {import('express').Request} req - Express request object
@@ -20,9 +91,13 @@ export const createWorkout = async (req, res) => {
       })
     }
 
+    const { exercises: exercisesWithPB, personalBests } =
+      await detectPersonalBests(userId, exercises || [])
+
     const workout = await Workout.create({
       name,
-      exercises: exercises || [],
+      exercises: exercisesWithPB,
+      personalBests,
       user: userId,
       duration: duration || 0,
       notes: notes || '',
@@ -202,7 +277,7 @@ export const getWorkoutById = async (req, res) => {
 export const updateWorkout = async (req, res) => {
   try {
     const { id } = req.params
-    const { exercises, name, duration, notes } = req.body
+    const { exercises, name, duration } = req.body
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid workout ID' })

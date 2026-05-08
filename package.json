@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "dev": "nodemon src/server.js",
+    "dev:test": "dotenv -e .env.test -- nodemon src/server.js",
     "start": "node src/server.js",
     "lint": "eslint ./src",
     "lint:fix": "eslint ./src --fix"
@@ -30,6 +31,7 @@
     "@eslint/js": "^10.0.1",
     "@lnu/eslint-config": "^2.0.6",
     "@stylistic/eslint-plugin": "^5.10.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^10.2.1",
     "eslint-plugin-jsdoc": "^62.9.0",
     "eslint-plugin-n": "^17.24.0",

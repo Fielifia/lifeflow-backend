@@ -21,6 +21,10 @@ const setSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  personalBest: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 const exerciseSchema = new mongoose.Schema({
@@ -63,6 +67,11 @@ const workoutSchema = new mongoose.Schema(
     name: {
       type: String,
       default: '',
+    },
+    
+    personalBests: {
+      type: Number,
+      default: 0,
     },
 
     exercises: {
