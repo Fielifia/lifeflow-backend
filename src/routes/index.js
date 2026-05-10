@@ -8,6 +8,7 @@ import authRoutes from './authRouter.js'
 import workoutRoutes from './workoutRouter.js'
 import exerciseRouter from './exerciseRouter.js'
 import templateRouter from './templateRouter.js'
+import statsRouter from './statsRouter.js'
 
 const router = express.Router()
 
@@ -20,6 +21,9 @@ router.use('/workouts', workoutRoutes)
 // --- Exercise routes ---
 router.use('/exercises', exerciseRouter)
 
+// --- Template routes ---
 router.use('/templates', templateRouter)
 
+// --- Statistics routes ---
+router.use('/stats', statsRouter)
 export default router
