@@ -1,4 +1,4 @@
-import Workout from '../models/Workout'
+import Workout from '../models/Workout.js'
 
 /**
  * Calculates overview workout statistics for a specific user.
@@ -11,7 +11,7 @@ import Workout from '../models/Workout'
  * totalWorkouts: number,
  * totalSets: number,
  * totalVolume: number
- * }} - Aggregated workout statistics
+ * }>} - Aggregated workout statistics
  */
 export const getOverviewStatistics = async (userId) => {
   const workouts = await Workout.find({ user: userId })

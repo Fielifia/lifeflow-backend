@@ -5,7 +5,7 @@
  */
 import express from 'express'
 import { authMiddleware } from '../middleware/auth.js'
-import { getOverviewStats } from '../controllers/templateController.js'
+import { getOverviewStats } from '../controllers/statsController.js'
 
 const router = express.Router()
 
