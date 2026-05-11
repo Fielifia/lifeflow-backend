@@ -102,7 +102,7 @@ export const getLatestWorkout = async (req, res) => {
       .sort({ date: -1 })
       .lean()
 
-    if (!workout) {
+    if (!workouts.length) {
       return res.status(404).json({ error: 'No workouts found' })
     }
 
@@ -128,35 +128,64 @@ export const getPreviousExercise = async (req, res) => {
       return res.status(400).json({ error: 'Invalid exercise ID' })
     }
 
-    const workout = await Workout.findOne({
+    const workouts = await Workout.find({
       user: req.user.id,
       'exercises.exerciseId': exerciseId.toString(),
     })
       .sort({ date: -1 })
       .lean()
 
-    if (!workout) {
-      return res.status(404).json({ error: 'No previous data' })
+    if (!workouts.length) {
+      return res.status(404).json({
+        error: 'No previous data',
+      })
     }
 
-    const exercise = workout.exercises.find(
-      (e) => e.exerciseId.toString() === exerciseId
-    )
-
-    if (!exercise) {
-      return res.status(404).json({ error: 'Exercise not found in workout' })
+    let bestSet = {
+      weight: 0,
+      reps: 0,
     }
 
-    const completedSets = exercise.sets.filter((s) => s.completed)
+    let latestSets = []
 
-    if (completedSets.length === 0) {
-      return res.status(404).json({ error: 'No completed sets found' })
+    for (const workout of workouts) {
+      const exercise = workout.exercises.find(
+        (e) => e.exerciseId.toString() === exerciseId,
+      )
+
+      if (!exercise) continue
+
+      const completedSets = exercise.sets.filter((s) => s.completed)
+
+      if (workout._id.toString() === workouts[0]._id.toString()) {
+        latestSets = completedSets
+      }
+
+      for (const set of completedSets) {
+        const betterWeight = set.weight > bestSet.weight
+
+        const betterReps =
+          set.weight === bestSet.weight && set.reps > bestSet.reps
+
+        if (betterWeight || betterReps) {
+          bestSet = {
+            weight: set.weight,
+            reps: set.reps,
+          }
+        }
+      }
+    }
+
+    if (!latestSets.length) {
+      return res.status(404).json({
+        error: 'No completed sets found',
+      })
     }
 
     return res.json({
-      exerciseId: exercise.exerciseId,
-      name: exercise.name,
-      sets: completedSets.map((s) => ({
+      exerciseId,
+      bestSet,
+      sets: latestSets.map((s) => ({
         reps: s.reps,
         weight: s.weight,
       })),
