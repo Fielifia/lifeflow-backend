@@ -7,7 +7,7 @@ import express from 'express'
 import {
   createWorkout,
   getWorkouts,
-  getLatestWorkout,
+  getRecentWorkouts,
   getPreviousExercise,
   getWorkoutById,
   updateWorkout,
@@ -24,7 +24,7 @@ router.get('/', getWorkouts)
 router.post('/', createWorkout)
 
 // Specific static routes
-router.get('/latest', getLatestWorkout)
+router.get('/recent', getRecentWorkouts)
 
 // ID-based routes
 router.get('/exercises/:exerciseId/previous', getPreviousExercise)

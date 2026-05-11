@@ -90,26 +90,30 @@ export const getWorkouts = async (req, res) => {
 }
 
 /**
- * Get the latest workout
+ * Get a given number of recent workouts
  * 
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<void>} Sends JSON response
  */
-export const getLatestWorkout = async (req, res) => {
+export const getRecentWorkouts = async (req, res) => {
   try {
-    const workout = await Workout.findOne({ user: req.user.id })
+    const limit = Math.min(parseInt(req.query.limit) || 3, 10)
+
+    const workouts = await Workout.find({
+      user: req.user.id,
+    })
       .sort({ date: -1 })
+      .limit(limit)
       .lean()
 
-    if (!workouts.length) {
-      return res.status(404).json({ error: 'No workouts found' })
-    }
-
-    return res.json(workout)
+    return res.json(workouts)
   } catch (err) {
-    console.error('Get latest workout error:', err)
-    return res.status(500).json({ error: 'Failed to fetch workout' })
+    console.error('Get recent workouts error:', err)
+
+    return res.status(500).json({
+      error: 'Failed to fetch recent workouts',
+    })
   }
 }
 
