@@ -50,6 +50,30 @@ const calculateWorkoutStatistics = (workouts) => {
 }
 
 /**
+ * Calculates days since last workout.
+ *
+ * @param {Array<object>} workouts - User workouts
+ * @returns {number | null} Days since last workout
+ */
+const calculateDaysSinceWorkout = (workouts) => {
+  if (!workouts.length) {
+    return null
+  }
+
+  const sorted = [...workouts].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  )
+
+  const latestWorkout = new Date(sorted[0].date)
+
+  const today = new Date()
+
+  const diffTime = today - latestWorkout
+
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24))
+}
+
+/**
  * Builds weekly activity chart data.
  *
  * @param {Array<object>} workouts - Weekly workouts
@@ -129,10 +153,7 @@ const isCurrentWeek = (date) => {
  * @param {string} range - Selected range
  * @returns {Array<object>} Filtered workouts
  */
-const filterWorkoutsByRange = (
-  workouts,
-  range
-) => {
+const filterWorkoutsByRange = (workouts, range) => {
   if (range === 'all') {
     return workouts
   }
@@ -166,9 +187,7 @@ const filterWorkoutsByRange = (
     return workouts
   }
 
-  return workouts.filter((workout) =>
-    new Date(workout.date) >= startDate
-  )
+  return workouts.filter((workout) => new Date(workout.date) >= startDate)
 }
 
 /**
@@ -185,7 +204,11 @@ export const getFilteredStatistics = async (userId, range) => {
 
   const filtered = filterWorkoutsByRange(workouts, range)
 
-  return calculateWorkoutStatistics(filtered)
+  return {
+    ...calculateWorkoutStatistics(filtered),
+
+    daysSinceLastWorkout: calculateDaysSinceWorkout(workouts),
+  }
 }
 
 /**
@@ -217,5 +240,7 @@ export const getOverviewStatistics = async (userId) => {
 
       activity: buildWeeklyActivity(currentWeekWorkouts),
     },
+
+    daysSinceLastWorkout: calculateDaysSinceWorkout(workouts),
   }
 }
