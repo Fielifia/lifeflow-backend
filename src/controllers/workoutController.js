@@ -4,6 +4,7 @@ import { recalculateExercisePBs } from '../services/personalBestService.js'
 
 /**
  * Create a new workout
+ * Requires authenticated user
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -52,6 +53,7 @@ export const createWorkout = async (req, res) => {
 
 /**
  * Get all workouts
+ * Requires authenticated user
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -90,7 +92,8 @@ export const getWorkouts = async (req, res) => {
 }
 
 /**
- * Get a given number of recent workouts
+ * Get recent workouts
+ * Requires authenticated user
  * 
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -118,7 +121,8 @@ export const getRecentWorkouts = async (req, res) => {
 }
 
 /**
- * Get previous values from exercise
+ * Get previous sets and best set for an exercise
+ * Requires authenticated user
  * 
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -154,7 +158,7 @@ export const getPreviousExercise = async (req, res) => {
 
     for (const workout of workouts) {
       const exercise = workout.exercises.find(
-        (e) => e.exerciseId.toString() === exerciseId,
+        (e) => e.exerciseId.toString() === exerciseId
       )
 
       if (!exercise) continue
@@ -201,7 +205,8 @@ export const getPreviousExercise = async (req, res) => {
 }
 
 /**
- * Get a single workout by id
+ * Get a single workout by ID
+ * Requires authenticated user
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -238,11 +243,12 @@ export const getWorkoutById = async (req, res) => {
 }
 
 /**
- * Update a workout by id
+ * Update a workout by ID
+ * Requires authenticated user
  *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
  */
 export const updateWorkout = async (req, res) => {
   try {
@@ -348,10 +354,11 @@ export const updateWorkout = async (req, res) => {
 
 /**
  * Delete a workout
- *
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
+ * Requires authenticated user
+ * 
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
  */
 export const deleteWorkout = async (req, res) => {
   try {

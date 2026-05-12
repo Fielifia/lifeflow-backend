@@ -7,7 +7,6 @@ import Workout from '../models/Workout.js'
  *
  * @param {string} userId - Current user id
  * @param {string} exerciseId - Exercise id
- * @returns {Promise<void>} -
  */
 export const recalculateExercisePBs = async (
   userId,
@@ -22,7 +21,6 @@ export const recalculateExercisePBs = async (
   }).sort({ date: 1 })
 
   for (const workout of workouts) {
-    let workoutPBs = 0
 
     for (const exercise of workout.exercises) {
       if (exercise.exerciseId.toString() !== exerciseId.toString()) {
