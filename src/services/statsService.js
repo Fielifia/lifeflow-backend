@@ -1,109 +1,88 @@
 import Workout from '../models/Workout.js'
 
 /**
- * Calculates overview workout statistics for a specific user.
+ * Calculates aggregated workout statistics.
  *
- * Aggregates workout statistics from the user's workout history,
- * including all-time statistics, current month statistics,
- * and current week statistics/activity.
- *
- * @param {string} userId - The authenticated user's ID.
- * @returns {Promise<{
- *   allTime: {
- *     workouts: number,
- *     sets: number,
- *     reps: number,
- *     volume: number,
- *     duration: number,
- *     personalBests: number
- *   },
- *   currentMonth: {
- *     workouts: number,
- *     sets: number,
- *     reps: number,
- *     volume: number,
- *     duration: number,
- *     personalBests: number
- *   },
- *   currentWeek: {
- *     workouts: number,
- *     sets: number,
- *     reps: number,
- *     volume: number,
- *     duration: number,
- *     personalBests: number,
- *     activity: {
- *       day: string,
- *       minutes: number
- *     }[]
- *   }
- * }>} Aggregated workout statistics.
+ * @param {Array<object>} workouts - Filtered workouts
+ * @returns {{
+ *   workouts: number,
+ *   sets: number,
+ *   reps: number,
+ *   volumeKg: number,
+ *   durationMinutes: number,
+ *   personalBests: number
+ * }} - Workout statistics
  */
-export const getOverviewStatistics = async (userId) => {
-  const workouts = await Workout.find({ user: userId })
-
-  // --- Date helpers ---
-  const today = new Date()
-
-  const currentMonth = today.getMonth()
-  const currentYear = today.getFullYear()
-
-  const startOfWeek = new Date(today)
-
-  const day = startOfWeek.getDay()
-
-  const adjustedDay = day === 0 ? 7 : day
-
-  startOfWeek.setDate(startOfWeek.getDate() - adjustedDay + 1)
-  startOfWeek.setHours(0, 0, 0, 0)
-
-
-  /**
-   * Checks if a date belongs to the current month.
-   *
-   * @param {Date} date - Date to validate.
-   * @returns {boolean} - True if current month
-   */
-  const isCurrentMonth = (date) => {
-    return (
-      date.getMonth() === currentMonth && date.getFullYear() === currentYear
-    )
-  }
-
-  /**
-   * Checks if a date belongs to the current week.
-   *
-   * @param {Date} date - Date to validate.
-   * @returns {boolean} - True if current week
-   */
-  const isCurrentWeek = (date) => {
-    return date >= startOfWeek
-  }
-
-  // --- All-time statistics ---
+const calculateWorkoutStatistics = (workouts) => {
   let totalSets = 0
   let totalReps = 0
   let totalVolume = 0
   let totalDuration = 0
   let totalPBs = 0
 
-  // --- Monthly statistics ---
-  let monthlyWorkouts = 0
-  let monthlySets = 0
-  let monthlyReps = 0
-  let monthlyVolume = 0
-  let monthlyDuration = 0
-  let monthlyPBs = 0
+  workouts.forEach((workout) => {
+    totalDuration += workout.duration || 0
 
-  // --- Weekly statistics ---
-  let weeklyWorkouts = 0
-  let weeklySets = 0
-  let weeklyReps = 0
-  let weeklyVolume = 0
-  let weeklyDuration = 0
-  let weeklyPBs = 0
+    workout.exercises.forEach((exercise) => {
+      exercise.sets.forEach((set) => {
+        const reps = Number(set.reps) || 0
+        const weight = Number(set.weight) || 0
 
-  // --- Weekly activity ---
+        totalSets += 1
+        totalReps += reps
+        totalVolume += reps * weight
+
+        if (set.personalBest) {
+          totalPBs += 1
+        }
+      })
+    })
+  })
+
+  return {
+    workouts: workouts.length,
+    sets: totalSets,
+    reps: totalReps,
+    volumeKg: totalVolume,
+    durationMinutes: Math.round(totalDuration / 60),
+    personalBests: totalPBs,
+  }
+}
+
+/**
+ * Calculates days since last workout.
+ *
+ * @param {Array<object>} workouts - User workouts
+ * @returns {number | null} Days since last workout
+ */
+const calculateDaysSinceWorkout = (workouts) => {
+  if (!workouts.length) {
+    return null
+  }
+
+  const sorted = [...workouts].sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  )
+
+  const latestWorkout = new Date(sorted[0].date)
+
+  const today = new Date()
+
+  const diffTime = today - latestWorkout
+
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24))
+}
+
+/**
+ * Builds weekly activity chart data.
+ *
+ * @param {Array<object>} workouts - Weekly workouts
+ * @returns {{
+ *   day: string,
+ *   minutes: number
+ * }[]} - Weekly activity data
+ */
+const buildWeeklyActivity = (workouts) => {
   const weeklyActivity = [
     { day: 'Mon', minutes: 0 },
     { day: 'Tue', minutes: 0 },
@@ -117,103 +96,151 @@ export const getOverviewStatistics = async (userId) => {
   workouts.forEach((workout) => {
     const workoutDate = new Date(workout.date)
 
-    const currentMonthWorkout = isCurrentMonth(workoutDate)
-    const currentWeekWorkout = isCurrentWeek(workoutDate)
+    const dayIndex = workoutDate.getDay()
 
+    // Convert Sunday (0) to last index
+    const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1
 
-    
-    // --- Duration ---
-    totalDuration += workout.duration || 0
-
-    if (currentMonthWorkout) {
-      monthlyWorkouts += 1
-      monthlyDuration += workout.duration || 0
-    }
-
-    if (currentWeekWorkout) {
-      weeklyWorkouts += 1
-      weeklyDuration += workout.duration || 0
-    }
-
-    // --- Weekly activity ---
-    if (currentWeekWorkout) {
-      const dayIndex = workoutDate.getDay()
-
-      // Convert Sunday (0) to last index
-      const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1
-
-      weeklyActivity[adjustedIndex].minutes += Math.round(
-        (workout.duration || 0) / 60
-      )
-    }
-
-    // --- Exercise statistics ---
-    workout.exercises.forEach((exercise) => {
-      exercise.sets.forEach((set) => {
-        const setVolume = set.weight * set.reps
-
-        // --- All time ---
-        totalSets += 1
-        totalReps += set.reps
-        totalVolume += setVolume
-
-        // --- Personal bests ---
-        if (set.personalBest) {
-          totalPBs += 1
-        }
-
-        // --- Current month ---
-        if (currentMonthWorkout) {
-          monthlySets += 1
-          monthlyReps += set.reps
-          monthlyVolume += setVolume
-
-          if (set.personalBest) {
-            monthlyPBs += 1
-          }
-        }
-
-        // --- Current week ---
-        if (currentWeekWorkout) {
-          weeklySets += 1
-          weeklyReps += set.reps
-          weeklyVolume += setVolume
-
-          if (set.personalBest) {
-            weeklyPBs += 1
-          }
-        }
-      })
-    })
+    weeklyActivity[adjustedIndex].minutes += Math.round(
+      (workout.duration || 0) / 60
+    )
   })
 
-  return {
-    allTime: {
-      workouts: workouts.length,
-      sets: totalSets,
-      reps: totalReps,
-      volumeKg: totalVolume,
-      durationMinutes: Math.round(totalDuration / 60),
-      personalBests: totalPBs,
-    },
+  return weeklyActivity
+}
 
-    currentMonth: {
-      workouts: monthlyWorkouts,
-      sets: monthlySets,
-      reps: monthlyReps,
-      volumeKg: monthlyVolume,
-      durationMinutes: Math.round(monthlyDuration / 60),
-      personalBests: monthlyPBs,
-    },
+/**
+ * Checks if workout belongs to current month.
+ *
+ * @param {Date} date - Workout date
+ * @returns {boolean} - True if current month
+ */
+const isCurrentMonth = (date) => {
+  const today = new Date()
+
+  return (
+    date.getMonth() === today.getMonth() &&
+    date.getFullYear() === today.getFullYear()
+  )
+}
+
+/**
+ * Checks if workout belongs to current week.
+ *
+ * @param {Date} date - Workout date
+ * @returns {boolean} - True if current week
+ */
+const isCurrentWeek = (date) => {
+  const today = new Date()
+
+  const startOfWeek = new Date(today)
+
+  const day = startOfWeek.getDay()
+
+  const adjustedDay = day === 0 ? 7 : day
+
+  startOfWeek.setDate(startOfWeek.getDate() - adjustedDay + 1)
+
+  startOfWeek.setHours(0, 0, 0, 0)
+
+  return date >= startOfWeek
+}
+
+/**
+ * Filters workouts by selected range.
+ *
+ * @param {Array<object>} workouts - User workouts
+ * @param {string} range - Selected range
+ * @returns {Array<object>} Filtered workouts
+ */
+const filterWorkoutsByRange = (workouts, range) => {
+  if (range === 'all') {
+    return workouts
+  }
+
+  const now = new Date()
+
+  const startDate = new Date(now)
+
+  switch (range) {
+  case '7d':
+    startDate.setDate(now.getDate() - 7)
+    break
+
+  case '1m':
+    startDate.setMonth(now.getMonth() - 1)
+    break
+
+  case '3m':
+    startDate.setMonth(now.getMonth() - 3)
+    break
+
+  case '6m':
+    startDate.setMonth(now.getMonth() - 6)
+    break
+
+  case '1y':
+    startDate.setFullYear(now.getFullYear() - 1)
+    break
+
+  default:
+    return workouts
+  }
+
+  return workouts.filter((workout) => new Date(workout.date) >= startDate)
+}
+
+/**
+ * Calculates filtered workout statistics.
+ *
+ * @param {string} userId - Authenticated user ID
+ * @param {string} range - Range to filter
+ * @returns {Promise<object>} Filtered statistics
+ */
+export const getFilteredStatistics = async (userId, range) => {
+  const workouts = await Workout.find({
+    user: userId,
+  }).lean()
+
+  const filtered = filterWorkoutsByRange(workouts, range)
+
+  return {
+    ...calculateWorkoutStatistics(filtered),
+
+    daysSinceLastWorkout: calculateDaysSinceWorkout(workouts),
+  }
+}
+
+/**
+ * Calculates overview workout statistics.
+ *
+ * @param {string} userId - Authenticated user ID
+ * @returns {Promise<object>} Overview statistics
+ */
+export const getOverviewStatistics = async (userId) => {
+  const workouts = await Workout.find({
+    user: userId,
+  }).lean()
+
+  const currentMonthWorkouts = workouts.filter((workout) =>
+    isCurrentMonth(new Date(workout.date))
+  )
+
+  const currentWeekWorkouts = workouts.filter((workout) =>
+    isCurrentWeek(new Date(workout.date))
+  )
+
+  return {
+    allTime: calculateWorkoutStatistics(workouts),
+
+    currentMonth: calculateWorkoutStatistics(currentMonthWorkouts),
 
     currentWeek: {
-      workouts: weeklyWorkouts,
-      sets: weeklySets,
-      reps: weeklyReps,
-      volumeKg: weeklyVolume,
-      durationMinutes: Math.round(weeklyDuration / 60),
-      personalBests: weeklyPBs,
-      activity: weeklyActivity,
+      ...calculateWorkoutStatistics(currentWeekWorkouts),
+
+      activity: buildWeeklyActivity(currentWeekWorkouts),
     },
+
+    daysSinceLastWorkout: calculateDaysSinceWorkout(workouts),
   }
 }

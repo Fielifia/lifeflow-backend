@@ -5,7 +5,10 @@
  */
 import express from 'express'
 import { authMiddleware } from '../middleware/auth.js'
-import { getOverviewStats } from '../controllers/statsController.js'
+import {
+  getOverviewStats,
+  getStatistics,
+} from '../controllers/statsController.js'
 
 const router = express.Router()
 
@@ -13,5 +16,6 @@ router.use(authMiddleware)
 
 // Collection routes
 router.get('/overview', getOverviewStats)
+router.get('/', getStatistics)
 
 export default router

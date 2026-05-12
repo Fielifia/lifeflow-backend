@@ -1,4 +1,7 @@
-import { getOverviewStatistics } from '../services/statsService.js'
+import {
+  getOverviewStatistics,
+  getFilteredStatistics,
+} from '../services/statsService.js'
 
 /**
  * Retrieves overview workout statistics for the authenticated user.
@@ -8,7 +11,7 @@ import { getOverviewStatistics } from '../services/statsService.js'
  *
  * @param {import('express').Request} req - Express request object.
  * @param {import('express').Response} res - Express response object.
- * @returns {Promise<void>} - 
+ * @returns {Promise<void>} Sends JSON response
  */
 export const getOverviewStats = async (req, res) => {
   try {
@@ -16,8 +19,35 @@ export const getOverviewStats = async (req, res) => {
 
     res.status(200).json(stats)
   } catch (error) {
+    console.error('Get overview statistics error:', error)
+
     res.status(500).json({
+      error: 'Failed to fetch overview statistics',
+    })
+  }
+}
+
+/**
+ * Retrieves filtered workout statistics.
+ *
+ * Returns workout statistics based on selected range.
+ *
+ * @param {import('express').Request} req - Express request object.
+ * @param {import('express').Response} res - Express response object.
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const getStatistics = async (req, res) => {
+  try {
+    const { range = '1m' } = req.query
+
+    const stats = await getFilteredStatistics(req.user.id, range)
+
+    return res.status(200).json(stats)
+  } catch (error) {
+    console.error('Get statistics error:', error)
+
+    return res.status(500).json({
       error: 'Failed to fetch statistics',
-    }), error
+    })
   }
 }
