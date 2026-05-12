@@ -30,5 +30,5 @@ trigger-deploy:
   stage: deploy
 
   trigger:
-    project: sa226jf/workspace/lifeFlow-deploy
+    project: 1dv613/student/sa226jf/workspace/lifeFlow-deploy
     branch: main
