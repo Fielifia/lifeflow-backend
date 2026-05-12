@@ -11,7 +11,7 @@ import Workout from '../models/Workout.js'
  *   volumeKg: number,
  *   durationMinutes: number,
  *   personalBests: number
- * }}
+ * }} - Workout statistics
  */
 const calculateWorkoutStatistics = (workouts) => {
   let totalSets = 0
@@ -56,7 +56,7 @@ const calculateWorkoutStatistics = (workouts) => {
  * @returns {{
  *   day: string,
  *   minutes: number
- * }[]}
+ * }[]} - Weekly activity data
  */
 const buildWeeklyActivity = (workouts) => {
   const weeklyActivity = [
@@ -78,7 +78,7 @@ const buildWeeklyActivity = (workouts) => {
     const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1
 
     weeklyActivity[adjustedIndex].minutes += Math.round(
-      (workout.duration || 0) / 60,
+      (workout.duration || 0) / 60
     )
   })
 
@@ -89,7 +89,7 @@ const buildWeeklyActivity = (workouts) => {
  * Checks if workout belongs to current month.
  *
  * @param {Date} date - Workout date
- * @returns {boolean}
+ * @returns {boolean} - True if current month
  */
 const isCurrentMonth = (date) => {
   const today = new Date()
@@ -104,7 +104,7 @@ const isCurrentMonth = (date) => {
  * Checks if workout belongs to current week.
  *
  * @param {Date} date - Workout date
- * @returns {boolean}
+ * @returns {boolean} - True if current week
  */
 const isCurrentWeek = (date) => {
   const today = new Date()
@@ -123,10 +123,76 @@ const isCurrentWeek = (date) => {
 }
 
 /**
- * Calculates overview workout statistics for dashboard.
+ * Filters workouts by selected range.
+ *
+ * @param {Array<object>} workouts - User workouts
+ * @param {string} range - Selected range
+ * @returns {Array<object>} Filtered workouts
+ */
+const filterWorkoutsByRange = (
+  workouts,
+  range
+) => {
+  if (range === 'all') {
+    return workouts
+  }
+
+  const now = new Date()
+
+  const startDate = new Date(now)
+
+  switch (range) {
+  case '7d':
+    startDate.setDate(now.getDate() - 7)
+    break
+
+  case '1m':
+    startDate.setMonth(now.getMonth() - 1)
+    break
+
+  case '3m':
+    startDate.setMonth(now.getMonth() - 3)
+    break
+
+  case '6m':
+    startDate.setMonth(now.getMonth() - 6)
+    break
+
+  case '1y':
+    startDate.setFullYear(now.getFullYear() - 1)
+    break
+
+  default:
+    return workouts
+  }
+
+  return workouts.filter((workout) =>
+    new Date(workout.date) >= startDate
+  )
+}
+
+/**
+ * Calculates filtered workout statistics.
  *
  * @param {string} userId - Authenticated user ID
- * @returns {Promise<object>} Dashboard statistics
+ * @param {string} range - Range to filter
+ * @returns {Promise<object>} Filtered statistics
+ */
+export const getFilteredStatistics = async (userId, range) => {
+  const workouts = await Workout.find({
+    user: userId,
+  }).lean()
+
+  const filtered = filterWorkoutsByRange(workouts, range)
+
+  return calculateWorkoutStatistics(filtered)
+}
+
+/**
+ * Calculates overview workout statistics.
+ *
+ * @param {string} userId - Authenticated user ID
+ * @returns {Promise<object>} Overview statistics
  */
 export const getOverviewStatistics = async (userId) => {
   const workouts = await Workout.find({
@@ -134,11 +200,11 @@ export const getOverviewStatistics = async (userId) => {
   }).lean()
 
   const currentMonthWorkouts = workouts.filter((workout) =>
-    isCurrentMonth(new Date(workout.date)),
+    isCurrentMonth(new Date(workout.date))
   )
 
   const currentWeekWorkouts = workouts.filter((workout) =>
-    isCurrentWeek(new Date(workout.date)),
+    isCurrentWeek(new Date(workout.date))
   )
 
   return {
