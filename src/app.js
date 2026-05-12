@@ -40,6 +40,8 @@ async function connectDatabase() {
 
 await connectDatabase()
 
+await seedIfEmpty()
+
 // --- Middleware ---
 const allowedOrigins = process.env.CLIENT_URLS.split(',')
 
