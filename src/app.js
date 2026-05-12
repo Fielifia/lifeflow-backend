@@ -41,7 +41,14 @@ async function connectDatabase() {
 await connectDatabase()
 
 // --- Middleware ---
-app.use(cors())
+const allowedOrigins = process.env.CLIENT_URLS.split(',')
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  }),
+)
 
 // --- Body parser ---
 app.use(express.json())
