@@ -32,3 +32,6 @@ trigger-deploy:
   trigger:
     project: 1dv613/student/sa226jf/workspace/lifeFlow-deploy
     branch: main
+
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "main"'
