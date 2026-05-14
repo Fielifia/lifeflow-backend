@@ -8,7 +8,6 @@ import { authMiddleware } from '../middleware/auth.js'
 import {
   createTemplate, 
   getTemplates, 
-  getLatestTemplate, 
   getTemplateById, 
   updateTemplate, 
   deleteTemplate,
@@ -21,9 +20,6 @@ router.use(authMiddleware)
 // Collection routes
 router.post('/', createTemplate)
 router.get('/', getTemplates)
-
-// Specific static routes
-router.get('/latest', getLatestTemplate)
 
 // ID-based routes
 router.get('/:id', getTemplateById)
