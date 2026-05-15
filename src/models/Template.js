@@ -43,6 +43,10 @@ const templateSchema = new mongoose.Schema({
     type: [templateExerciseSchema],
     default: [],
   },
-})
+},
+  {
+    timestamps: true,
+  },
+)
 
 export default mongoose.model('Template', templateSchema)
