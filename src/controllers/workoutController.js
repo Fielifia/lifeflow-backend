@@ -128,24 +128,13 @@ export const getPreviousExercise = async (req, res) => {
       .sort({ date: -1 })
       .lean()
 
-    if (!workouts.length) {
-      return res.status(404).json({
-        error: 'No previous data',
-      })
-    }
-
-    let bestSet = {
-      weight: 0,
-      reps: 0,
-    }
-
+    let bestSet = { weight: 0, reps: 0 }
     let latestSets = []
 
     for (const workout of workouts) {
       const exercise = workout.exercises.find(
         (e) => e.exerciseId.toString() === exerciseId
       )
-
       if (!exercise) continue
 
       const completedSets = exercise.sets.filter((s) => s.completed)
@@ -155,24 +144,14 @@ export const getPreviousExercise = async (req, res) => {
       }
 
       for (const set of completedSets) {
-        const betterWeight = set.weight > bestSet.weight
-
-        const betterReps =
-          set.weight === bestSet.weight && set.reps > bestSet.reps
-
-        if (betterWeight || betterReps) {
-          bestSet = {
-            weight: set.weight,
-            reps: set.reps,
-          }
+        if (set.weight > bestSet.weight || (set.weight === bestSet.weight && set.reps > bestSet.reps)) {
+          bestSet = { weight: set.weight, reps: set.reps }
         }
       }
     }
 
     if (!latestSets.length) {
-      return res.status(404).json({
-        error: 'No completed sets found',
-      })
+      latestSets = [{ reps: 10, weight: 0, completed: false }]
     }
 
     return res.status(200).json({
