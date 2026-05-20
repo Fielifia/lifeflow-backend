@@ -18,6 +18,7 @@ export const createWorkout = async (req, res) => {
       exercises = [],
       name,
       duration = 0,
+      startTime,
       notes = '',
     } = req.body
 
@@ -35,6 +36,7 @@ export const createWorkout = async (req, res) => {
       personalBests: 0,
       user: userId,
       duration,
+      startTime: startTime || Date.now(),
       notes,
     })
 
@@ -82,7 +84,7 @@ export const getWorkouts = async (req, res) => {
     const userId = req.user.id
 
     const workouts = await Workout.find({ user: userId })
-      .sort({ date: -1 })
+      .sort({ startTime: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean()
@@ -125,7 +127,7 @@ export const getPreviousExercise = async (req, res) => {
       user: req.user.id,
       'exercises.exerciseId': exerciseId.toString(),
     })
-      .sort({ date: -1 })
+      .sort({ startTime: -1 })
       .lean()
 
     let bestSet = { weight: 0, reps: 0 }
@@ -190,7 +192,7 @@ export const getWorkoutById = async (req, res) => {
       _id: id,
       user: userId,
     })
-      .lean()
+      .lean({ virtuals: true })
       .select('-__v')
 
     if (!workout) {
@@ -276,12 +278,12 @@ export const updateWorkout = async (req, res) => {
       })
     }
 
-    if (req.body.date !== undefined) {
-      const parsedDate = new Date(req.body.date)
+    if (req.body.startTime !== undefined) {
+      const parsedStartTime = new Date(req.body.startTime)
 
-      if (isNaN(parsedDate.getTime())) {
+      if (isNaN(parsedStartTime.getTime())) {
         return res.status(400).json({
-          error: 'Invalid workout date',
+          error: 'Invalid workout start time',
         })
       }
     }

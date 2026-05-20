@@ -1,11 +1,14 @@
 /**
  * Workout model
  *
- * Represents a logged workout session with exercises and sets.
+ * Represents a completed workout session
+ * with exercises, sets, timing and notes.
  */
-
 import mongoose from 'mongoose'
 
+/**
+ * Workout exercise set schema.
+ */
 const setSchema = new mongoose.Schema({
   reps: {
     type: Number,
@@ -27,6 +30,12 @@ const setSchema = new mongoose.Schema({
   },
 })
 
+/**
+ * Workout exercise schema.
+ *
+ * Stores a snapshot of exercise data
+ * at the time the workout was performed.
+ */
 const exerciseSchema = new mongoose.Schema({
   exerciseId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -56,6 +65,12 @@ const exerciseSchema = new mongoose.Schema({
   },
 })
 
+/**
+ * Workout schema.
+ *
+ * Stores completed workout sessions
+ * including exercises, duration and timestamps.
+ */
 const workoutSchema = new mongoose.Schema(
   {
     user: {
@@ -68,7 +83,7 @@ const workoutSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
-    
+
     personalBests: {
       type: Number,
       default: 0,
@@ -84,17 +99,38 @@ const workoutSchema = new mongoose.Schema(
       default: '',
     },
 
+    startTime: {
+      type: Date,
+      default: Date.now,
+    },
+
     duration: {
       type: Number,
       default: 0,
     },
 
-    date: {
-      type: Date,
-      default: Date.now,
-    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
 )
+
+/**
+ * Computed workout end time.
+ *
+ * Calculated from:
+ * startTime + duration
+ */
+workoutSchema.virtual('endTime').get(function () {
+  if (!this.startTime) {
+    return null
+  }
+
+  return new Date(
+    this.startTime.getTime() + this.duration * 1000
+  )
+})
 
 export default mongoose.model('Workout', workoutSchema)
