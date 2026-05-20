@@ -244,3 +244,47 @@ export const getOverviewStatistics = async (userId) => {
     daysSinceLastWorkout: calculateDaysSinceWorkout(workouts),
   }
 }
+
+/**
+ * Calculates exercise usage statistics.
+ *
+ * @param {string} userId - Authenticated user ID
+ * @returns {Promise<object>} Exercise usage statistics
+ */
+export const getExerciseUsageStats = async (userId) => {
+  const workouts = await Workout.find({
+    user: userId,
+  })
+    .select('date exercises.exerciseId')
+    .lean()
+
+  const stats = {}
+
+  for (const workout of workouts) {
+
+    for (const exercise of workout.exercises) {
+
+      const id =
+        exercise.exerciseId.toString()
+
+      if (!stats[id]) {
+        stats[id] = {
+          count: 0,
+          lastUsed: null,
+        }
+      }
+
+      stats[id].count += 1
+
+      if (
+        !stats[id].lastUsed ||
+        new Date(workout.date) >
+        new Date(stats[id].lastUsed)
+      ) {
+        stats[id].lastUsed = workout.date
+      }
+    }
+  }
+
+  return stats
+}
