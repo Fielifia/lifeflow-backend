@@ -49,7 +49,7 @@ app.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
-  }),
+  })
 )
 
 // --- Body parser ---
