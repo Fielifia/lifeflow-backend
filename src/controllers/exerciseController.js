@@ -12,8 +12,8 @@ import {
 } from '../services/statsService.js'
 
 /**
- * Get all exercises with search, filters,
- * sorting, and pagination.
+ * Get all exercises with filtering,
+ * sorting, and pagination support.
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -36,7 +36,7 @@ export const getExercises = async (req, res) => {
     )
 
     limit = Math.min(
-      100,
+      1000,
       Math.max(1, parseInt(limit) || 20)
     )
 
