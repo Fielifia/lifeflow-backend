@@ -63,7 +63,7 @@ export const getExercises = async (req, res) => {
 
     // ===== FETCH =====
 
-    let exercises = await Exercise.find(query)
+    const exercises = await Exercise.find(query)
       .lean()
 
     const total =
@@ -131,8 +131,8 @@ export const getExercises = async (req, res) => {
     const paginatedExercises =
       exercises.slice(
         (page - 1) * limit,
-        page * limit,
-    )
+        page * limit
+      )
 
     return res.status(200).json({
       page,
