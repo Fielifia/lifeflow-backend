@@ -58,7 +58,7 @@ const randomBetween = (min, max) =>
  */
 const randomItem = (arr) =>
   arr[
-    Math.floor(Math.random() * arr.length)
+  Math.floor(Math.random() * arr.length)
   ]
 
 /**
@@ -126,7 +126,7 @@ const seedWorkoutHistory = async () => {
         user: USER_ID,
       })
 
-    if (existingCount > 20) {
+    if (existingCount > 50) {
       console.log(
         `User already has ${existingCount} workouts.`
       )
@@ -174,10 +174,80 @@ const seedWorkoutHistory = async () => {
       const progressionFactor =
         (365 - daysAgo) / 365
 
+      // ===== TRAINING PHASES =====
+
+      // Older workouts:
+      // more machines / beginner style
+
+      const beginnerKeywords = [
+        'machine',
+        'press',
+        'pulldown',
+        'curl',
+        'extension',
+      ]
+
+      // Mid progression:
+      // more hypertrophy
+
+      const hypertrophyKeywords = [
+        'bench',
+        'row',
+        'press',
+        'fly',
+        'curl',
+        'lateral',
+      ]
+
+      // Recent workouts:
+      // more strength focused
+
+      const strengthKeywords = [
+        'bench',
+        'deadlift',
+        'squat',
+        'barbell',
+        'row',
+        'pull',
+      ]
+
+      // ===== PICK PHASE =====
+
+      let activeKeywords = beginnerKeywords
+
+      if (daysAgo < 120) {
+        activeKeywords = strengthKeywords
+      } else if (daysAgo < 240) {
+        activeKeywords = hypertrophyKeywords
+      }
+
+      // ===== FILTER EXERCISES =====
+
+      const prioritizedExercises =
+        exercises.filter((ex) => {
+
+          const name =
+            ex.name.toLowerCase()
+
+          return activeKeywords.some(
+            (keyword) =>
+              name.includes(keyword),
+          )
+        })
+
+      // Fallback if too few matches
+
+      const exercisePool =
+        prioritizedExercises.length >= 6
+          ? prioritizedExercises
+          : exercises
+
+      // ===== SELECT EXERCISES =====
+
       const selectedExercises =
-        shuffle(exercises).slice(
+        shuffle(exercisePool).slice(
           0,
-          randomBetween(4, 7)
+          randomBetween(4, 7),
         )
 
       const mappedExercises =
@@ -185,12 +255,13 @@ const seedWorkoutHistory = async () => {
           (ex, index) => {
 
             const baseWeight =
-              15 +
-              index * 5 +
-              progressionFactor * 40
+              20 +
+              index * 6 +
+              progressionFactor * 70
 
             const setCount =
               randomBetween(3, 5)
+
 
             return {
               exerciseId: ex._id,
@@ -218,34 +289,35 @@ const seedWorkoutHistory = async () => {
                 const completed =
                   Math.random() > 0.05
 
+                const isPR =
+                  chance(0.04)
+
                 const weight =
                   Math.round(
                     baseWeight +
                     setIndex * 2 +
-                    randomBetween(
-                      -3,
-                      5
-                    )
+                    randomBetween(-3, 5) +
+                    (isPR ? 20 : 0),
                   )
 
                 return {
                   reps:
                     randomBetween(
                       6,
-                      12
+                      12,
                     ),
 
                   weight:
                     Math.max(
                       0,
-                      weight
+                      weight,
                     ),
 
                   completed,
 
-                  personalBest: false,
+                  personalBest: isPR,
                 }
-              }),
+              })
             }
           }
         )
