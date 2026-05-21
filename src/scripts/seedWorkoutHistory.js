@@ -58,7 +58,7 @@ const randomBetween = (min, max) =>
  */
 const randomItem = (arr) =>
   arr[
-  Math.floor(Math.random() * arr.length)
+    Math.floor(Math.random() * arr.length)
   ]
 
 /**
@@ -231,7 +231,7 @@ const seedWorkoutHistory = async () => {
 
           return activeKeywords.some(
             (keyword) =>
-              name.includes(keyword),
+              name.includes(keyword)
           )
         })
 
@@ -247,7 +247,7 @@ const seedWorkoutHistory = async () => {
       const selectedExercises =
         shuffle(exercisePool).slice(
           0,
-          randomBetween(4, 7),
+          randomBetween(4, 7)
         )
 
       const mappedExercises =
@@ -297,27 +297,27 @@ const seedWorkoutHistory = async () => {
                     baseWeight +
                     setIndex * 2 +
                     randomBetween(-3, 5) +
-                    (isPR ? 20 : 0),
+                    (isPR ? 20 : 0)
                   )
 
                 return {
                   reps:
                     randomBetween(
                       6,
-                      12,
+                      12
                     ),
 
                   weight:
                     Math.max(
                       0,
-                      weight,
+                      weight
                     ),
 
                   completed,
 
                   personalBest: isPR,
                 }
-              })
+              }),
             }
           }
         )

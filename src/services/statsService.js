@@ -204,15 +204,6 @@ export const getFilteredStatistics = async (userId, range) => {
 
   const filtered = filterWorkoutsByRange(workouts, range)
 
-  console.log(
-    range,
-    filtered.length,
-  )
-
-  console.log(
-    calculateMostCommonExercise(filtered)
-  )
-
   return {
     ...calculateWorkoutStatistics(filtered),
 
