@@ -207,7 +207,23 @@ export const getFilteredStatistics = async (userId, range) => {
   return {
     ...calculateWorkoutStatistics(filtered),
 
-    daysSinceLastWorkout: calculateDaysSinceWorkout(workouts),
+    daysSinceLastWorkout:
+      calculateDaysSinceWorkout(workouts),
+
+    mostCommonExercise:
+      calculateMostCommonExercise(filtered),
+
+    bestVolumeSession:
+      calculateBestVolumeSession(filtered),
+
+    maxWeight:
+      calculateMaxWeight(filtered),
+
+    maxReps:
+      calculateMaxReps(filtered),
+
+    bestEstimated1RM:
+      calculateBestEstimated1RM(filtered),
   }
 }
 
@@ -255,7 +271,7 @@ export const getExerciseUsageStats = async (userId) => {
   const workouts = await Workout.find({
     user: userId,
   })
-    .select('date exercises.exerciseId')
+    .select('startTime exercises.exerciseId')
     .lean()
 
   const stats = {}
@@ -287,4 +303,274 @@ export const getExerciseUsageStats = async (userId) => {
   }
 
   return stats
+}
+/**
+ * Calculates the most frequently used exercise.
+ *
+ * @param {Array<object>} workouts - Filtered workouts
+ * @returns {{
+ *   name: string,
+ *   count: number
+ * } | null} Most used exercise
+ */
+const calculateMostCommonExercise = (workouts) => {
+  const counts = {}
+
+  workouts.forEach((workout) => {
+    workout.exercises.forEach((exercise) => {
+      const name = exercise.name
+
+      counts[name] =
+        (counts[name] || 0) + 1
+    })
+  })
+
+  let topExercise = null
+
+  Object.entries(counts).forEach(
+    ([name, count]) => {
+
+      if (
+        !topExercise ||
+        count > topExercise.count
+      ) {
+        topExercise = {
+          name,
+          count,
+        }
+      }
+    }
+  )
+
+  return topExercise
+}
+
+/**
+ * Calculates the highest volume workout session.
+ *
+ * Volume = reps × weight across all sets.
+ *
+ * @param {Array<object>} workouts - Filtered workouts
+ * @returns {{
+ *   workoutName: string,
+ *   volume: number,
+ *   startTime: Date
+ * } | null} Highest volume session
+ */
+const calculateBestVolumeSession = (
+  workouts
+) => {
+
+  let best = null
+
+  workouts.forEach((workout) => {
+
+    let volume = 0
+
+    workout.exercises.forEach(
+      (exercise) => {
+
+        exercise.sets.forEach(
+          (set) => {
+
+            volume +=
+              (set.reps || 0) *
+              (set.weight || 0)
+          }
+        )
+      }
+    )
+
+    if (
+      !best ||
+      volume > best.volume
+    ) {
+      best = {
+        workoutName:
+          workout.name,
+
+        volume,
+
+        startTime:
+          workout.startTime,
+      }
+    }
+  })
+
+  return best
+}
+
+/**
+ * Calculates the heaviest lifted set.
+ *
+ * @param {Array<object>} workouts - Filtered workouts
+ * @returns {{
+ *   exercise: string,
+ *   weight: number,
+ *   reps: number,
+ *   startTime: Date
+ * } | null} Heaviest set
+ */
+const calculateMaxWeight = (
+  workouts
+) => {
+
+  let max = null
+
+  workouts.forEach((workout) => {
+
+    workout.exercises.forEach(
+      (exercise) => {
+
+        exercise.sets.forEach(
+          (set) => {
+
+            if (
+              !max ||
+              set.weight > max.weight
+            ) {
+              max = {
+                exercise:
+                  exercise.name,
+
+                weight:
+                  set.weight,
+
+                reps:
+                  set.reps,
+
+                startTime:
+                  workout.startTime,
+              }
+            }
+          }
+        )
+      }
+    )
+  })
+
+  return max
+}
+
+/**
+ * Calculates the highest rep set.
+ *
+ * @param {Array<object>} workouts - Filtered workouts
+ * @returns {{
+ *   exercise: string,
+ *   reps: number,
+ *   weight: number,
+ *   startTime: Date
+ * } | null} Highest rep set
+ */
+const calculateMaxReps = (
+  workouts
+) => {
+
+  let max = null
+
+  workouts.forEach((workout) => {
+
+    workout.exercises.forEach(
+      (exercise) => {
+
+        exercise.sets.forEach(
+          (set) => {
+
+            if (
+              !max ||
+              set.reps > max.reps
+            ) {
+              max = {
+                exercise:
+                  exercise.name,
+
+                reps:
+                  set.reps,
+
+                weight:
+                  set.weight,
+
+                startTime:
+                  workout.startTime,
+              }
+            }
+          }
+        )
+      }
+    )
+  })
+
+  return max
+}
+
+/**
+ * Calculates the highest estimated one-rep max.
+ *
+ * Uses the Epley formula:
+ * 1RM = weight × (1 + reps / 30)
+ *
+ * @param {Array<object>} workouts - Filtered workouts
+ * @returns {{
+ *   exercise: string,
+ *   estimated1RM: number,
+ *   weight: number,
+ *   reps: number,
+ *   startTime: Date
+ * } | null} Highest estimated 1RM
+ */
+const calculateBestEstimated1RM = (
+  workouts
+) => {
+
+  let best = null
+
+  workouts.forEach((workout) => {
+
+    workout.exercises.forEach(
+      (exercise) => {
+
+        exercise.sets.forEach(
+          (set) => {
+
+            const weight =
+              set.weight || 0
+
+            const reps =
+              set.reps || 0
+
+            const estimated1RM =
+              weight * (
+                1 + reps / 30
+              )
+
+            if (
+              !best ||
+              estimated1RM >
+              best.estimated1RM
+            ) {
+              best = {
+                exercise:
+                  exercise.name,
+
+                estimated1RM:
+                  Math.round(
+                    estimated1RM
+                  ),
+
+                weight,
+
+                reps,
+
+                startTime:
+                  workout.startTime,
+              }
+            }
+          }
+        )
+      }
+    )
+  })
+
+  return best
 }

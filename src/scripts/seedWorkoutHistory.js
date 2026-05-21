@@ -36,28 +36,68 @@ const motivationalNotes = [
 
 // ===== HELPERS =====
 
+/**
+ * Generates a random integer
+ * between min and max.
+ *
+ * @param {number} min - Minimum value
+ * @param {number} max - Maximum value
+ * @returns {number} Random integer
+ */
 const randomBetween = (min, max) =>
   Math.floor(
-    Math.random() * (max - min + 1),
+    Math.random() * (max - min + 1)
   ) + min
 
+/**
+ * Returns a random item from an array.
+ *
+ * @template T
+ * @param {Array<T>} arr - Source array
+ * @returns {T} Random array item
+ */
 const randomItem = (arr) =>
   arr[
-  Math.floor(Math.random() * arr.length)
+    Math.floor(Math.random() * arr.length)
   ]
 
+/**
+ * Returns a shuffled copy of an array.
+ *
+ * @template T
+ * @param {Array<T>} arr - Source array
+ * @returns {Array<T>} Shuffled array
+ */
 const shuffle = (arr) =>
   [...arr].sort(() => Math.random() - 0.5)
 
+/**
+ * Returns true based on probability.
+ *
+ * Example:
+ * chance(0.25) = 25% chance
+ *
+ * @param {number} percent - Probability value between 0 and 1
+ * @returns {boolean} Random probability result
+ */
 const chance = (percent) =>
   Math.random() < percent
 
 // ===== MAIN =====
 
+/**
+ * Seeds realistic workout history data
+ * for development and statistics testing.
+ *
+ * Creates randomized workouts across
+ * the past year using existing exercises.
+ *
+ * @returns {Promise<void>} Seed completion
+ */
 const seedWorkoutHistory = async () => {
   try {
     await mongoose.connect(
-      process.env.MONGO_URI,
+      process.env.MONGO_URI
     )
 
     console.log('Connected to MongoDB')
@@ -69,14 +109,14 @@ const seedWorkoutHistory = async () => {
 
     if (!exercises.length) {
       console.log(
-        'No exercises found in database',
+        'No exercises found in database'
       )
 
       process.exit(0)
     }
 
     console.log(
-      `Found ${exercises.length} exercises`,
+      `Found ${exercises.length} exercises`
     )
 
     // ===== SAFETY CHECK =====
@@ -88,11 +128,11 @@ const seedWorkoutHistory = async () => {
 
     if (existingCount > 20) {
       console.log(
-        `User already has ${existingCount} workouts.`,
+        `User already has ${existingCount} workouts.`
       )
 
       console.log(
-        'Aborting seed to avoid duplicates.',
+        'Aborting seed to avoid duplicates.'
       )
 
       process.exit(0)
@@ -119,14 +159,14 @@ const seedWorkoutHistory = async () => {
         new Date(now)
 
       startTime.setDate(
-        now.getDate() - daysAgo,
+        now.getDate() - daysAgo
       )
 
       startTime.setHours(
         randomBetween(6, 21),
         randomBetween(0, 59),
         0,
-        0,
+        0
       )
 
       // Simulate progression over time
@@ -137,7 +177,7 @@ const seedWorkoutHistory = async () => {
       const selectedExercises =
         shuffle(exercises).slice(
           0,
-          randomBetween(4, 7),
+          randomBetween(4, 7)
         )
 
       const mappedExercises =
@@ -163,7 +203,7 @@ const seedWorkoutHistory = async () => {
               rest:
                 randomBetween(
                   60,
-                  180,
+                  180
                 ),
 
               notes:
@@ -184,21 +224,21 @@ const seedWorkoutHistory = async () => {
                     setIndex * 2 +
                     randomBetween(
                       -3,
-                      5,
-                    ),
+                      5
+                    )
                   )
 
                 return {
                   reps:
                     randomBetween(
                       6,
-                      12,
+                      12
                     ),
 
                   weight:
                     Math.max(
                       0,
-                      weight,
+                      weight
                     ),
 
                   completed,
@@ -207,7 +247,7 @@ const seedWorkoutHistory = async () => {
                 }
               }),
             }
-          },
+          }
         )
 
       // Random duration
@@ -216,7 +256,7 @@ const seedWorkoutHistory = async () => {
       const duration =
         randomBetween(
           2400,
-          7200,
+          7200
         )
 
       workouts.push({
@@ -224,7 +264,7 @@ const seedWorkoutHistory = async () => {
 
         name:
           randomItem(
-            workoutNames,
+            workoutNames
           ),
 
         personalBests: 0,
@@ -234,7 +274,7 @@ const seedWorkoutHistory = async () => {
 
         notes:
           randomItem(
-            motivationalNotes,
+            motivationalNotes
           ),
 
         duration,
@@ -246,15 +286,15 @@ const seedWorkoutHistory = async () => {
     // ===== INSERT =====
 
     await Workout.insertMany(
-      workouts,
+      workouts
     )
 
     console.log(
-      `Inserted ${workouts.length} workouts`,
+      `Inserted ${workouts.length} workouts`
     )
 
     console.log(
-      'Workout history seed completed',
+      'Workout history seed completed'
     )
 
     await mongoose.disconnect()
@@ -264,7 +304,7 @@ const seedWorkoutHistory = async () => {
   } catch (err) {
     console.error(
       'Seed error:',
-      err,
+      err
     )
 
     process.exit(1)
