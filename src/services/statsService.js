@@ -61,10 +61,10 @@ const calculateDaysSinceWorkout = (workouts) => {
   }
 
   const sorted = [...workouts].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
+    (a, b) => new Date(b.startTime) - new Date(a.startTime)
   )
 
-  const latestWorkout = new Date(sorted[0].date)
+  const latestWorkout = new Date(sorted[0].startTime)
 
   const today = new Date()
 
@@ -94,7 +94,7 @@ const buildWeeklyActivity = (workouts) => {
   ]
 
   workouts.forEach((workout) => {
-    const workoutDate = new Date(workout.date)
+    const workoutDate = new Date(workout.startTime)
 
     const dayIndex = workoutDate.getDay()
 
@@ -187,7 +187,7 @@ const filterWorkoutsByRange = (workouts, range) => {
     return workouts
   }
 
-  return workouts.filter((workout) => new Date(workout.date) >= startDate)
+  return workouts.filter((workout) => new Date(workout.startTime) >= startDate)
 }
 
 /**
@@ -223,11 +223,11 @@ export const getOverviewStatistics = async (userId) => {
   }).lean()
 
   const currentMonthWorkouts = workouts.filter((workout) =>
-    isCurrentMonth(new Date(workout.date))
+    isCurrentMonth(new Date(workout.startTime))
   )
 
   const currentWeekWorkouts = workouts.filter((workout) =>
-    isCurrentWeek(new Date(workout.date))
+    isCurrentWeek(new Date(workout.startTime))
   )
 
   return {
@@ -278,10 +278,10 @@ export const getExerciseUsageStats = async (userId) => {
 
       if (
         !stats[id].lastUsed ||
-        new Date(workout.date) >
+        new Date(workout.startTime) >
         new Date(stats[id].lastUsed)
       ) {
-        stats[id].lastUsed = workout.date
+        stats[id].lastUsed = workout.startTime
       }
     }
   }

@@ -12,7 +12,8 @@
     "docker:test": "docker compose --env-file .env.test -f docker-compose.yml -f docker-compose.dev.yml up --build",
     "docker:down": "docker compose down",
     "lint": "eslint ./src",
-    "lint:fix": "eslint ./src --fix"
+    "lint:fix": "eslint ./src --fix",
+    "seed:history": "node ./src/scripts/seedWorkoutHistory.js"
   },
   "repository": {
     "type": "git",
