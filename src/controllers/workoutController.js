@@ -1,6 +1,7 @@
-import Workout from '../models/Workout.js'
 import mongoose from 'mongoose'
+import Workout from '../models/Workout.js'
 import { recalculateExercisePBs } from '../services/personalBestService.js'
+import { formatExercisePayload } from '../utils/formatExercisePayload.js'
 
 /**
  * Create a new workout
@@ -13,7 +14,13 @@ import { recalculateExercisePBs } from '../services/personalBestService.js'
 export const createWorkout = async (req, res) => {
   try {
     const userId = req.user.id
-    const { exercises, name, duration, notes } = req.body
+    const {
+      exercises = [],
+      name,
+      duration = 0,
+      startTime,
+      notes = '',
+    } = req.body
 
     if (!name || name.trim() === '') {
       return res.status(400).json({
@@ -21,27 +28,35 @@ export const createWorkout = async (req, res) => {
       })
     }
 
+    const formattedExercises = formatExercisePayload(exercises)
+
     const workout = await Workout.create({
       name,
-      exercises: exercises || [],
+      exercises: formattedExercises,
       personalBests: 0,
       user: userId,
-      duration: duration || 0,
-      notes: notes || '',
+      duration,
+      startTime: startTime || Date.now(),
+      notes,
     })
 
     const affectedExerciseIds = [
-      ...new Set((exercises || []).map((e) => e.exerciseId.toString())),
+      ...new Set(
+        formattedExercises.map((e) =>
+          e.exerciseId.toString()
+        )
+      ),
     ]
 
     for (const exerciseId of affectedExerciseIds) {
       await recalculateExercisePBs(userId, exerciseId)
     }
 
-    const freshWorkout = await Workout.findById(workout._id).lean()
+    const freshWorkout = await Workout.findById(workout._id)
+      .lean()
+      .select('-__v')
 
     return res.status(201).json(freshWorkout)
-
   } catch (err) {
     console.error('Create workout error:', err)
 
@@ -69,14 +84,15 @@ export const getWorkouts = async (req, res) => {
     const userId = req.user.id
 
     const workouts = await Workout.find({ user: userId })
+      .sort({ startTime: -1 })
       .skip((page - 1) * limit)
       .limit(limit)
       .lean()
-      .sort({ date: -1 })
+      .select('-__v')
 
     const total = await Workout.countDocuments({ user: userId })
 
-    res.status(200).json({
+    return res.status(200).json({
       page,
       limit,
       total,
@@ -85,37 +101,8 @@ export const getWorkouts = async (req, res) => {
   } catch (err) {
     console.error('Get workouts error:', err)
 
-    res.status(500).json({
-      error: 'Failed to fetch workouts',
-    })
-  }
-}
-
-/**
- * Get recent workouts
- * Requires authenticated user
- * 
- * @param {import('express').Request} req - Express request object
- * @param {import('express').Response} res - Express response object
- * @returns {Promise<void>} Sends JSON response
- */
-export const getRecentWorkouts = async (req, res) => {
-  try {
-    const limit = Math.min(parseInt(req.query.limit) || 3, 10)
-
-    const workouts = await Workout.find({
-      user: req.user.id,
-    })
-      .sort({ date: -1 })
-      .limit(limit)
-      .lean()
-
-    return res.json(workouts)
-  } catch (err) {
-    console.error('Get recent workouts error:', err)
-
     return res.status(500).json({
-      error: 'Failed to fetch recent workouts',
+      error: 'Failed to fetch workouts',
     })
   }
 }
@@ -140,27 +127,16 @@ export const getPreviousExercise = async (req, res) => {
       user: req.user.id,
       'exercises.exerciseId': exerciseId.toString(),
     })
-      .sort({ date: -1 })
+      .sort({ startTime: -1 })
       .lean()
 
-    if (!workouts.length) {
-      return res.status(404).json({
-        error: 'No previous data',
-      })
-    }
-
-    let bestSet = {
-      weight: 0,
-      reps: 0,
-    }
-
+    let bestSet = { weight: 0, reps: 0 }
     let latestSets = []
 
     for (const workout of workouts) {
       const exercise = workout.exercises.find(
         (e) => e.exerciseId.toString() === exerciseId
       )
-
       if (!exercise) continue
 
       const completedSets = exercise.sets.filter((s) => s.completed)
@@ -170,27 +146,17 @@ export const getPreviousExercise = async (req, res) => {
       }
 
       for (const set of completedSets) {
-        const betterWeight = set.weight > bestSet.weight
-
-        const betterReps =
-          set.weight === bestSet.weight && set.reps > bestSet.reps
-
-        if (betterWeight || betterReps) {
-          bestSet = {
-            weight: set.weight,
-            reps: set.reps,
-          }
+        if (set.weight > bestSet.weight || (set.weight === bestSet.weight && set.reps > bestSet.reps)) {
+          bestSet = { weight: set.weight, reps: set.reps }
         }
       }
     }
 
     if (!latestSets.length) {
-      return res.status(404).json({
-        error: 'No completed sets found',
-      })
+      latestSets = [{ reps: 10, weight: 0, completed: false }]
     }
 
-    return res.json({
+    return res.status(200).json({
       exerciseId,
       bestSet,
       sets: latestSets.map((s) => ({
@@ -199,7 +165,8 @@ export const getPreviousExercise = async (req, res) => {
       })),
     })
   } catch (err) {
-    console.error(err)
+    console.error('Get previous exercise error: ', err)
+
     return res.status(500).json({ error: 'Failed to fetch previous exercise' })
   }
 }
@@ -224,7 +191,9 @@ export const getWorkoutById = async (req, res) => {
     const workout = await Workout.findOne({
       _id: id,
       user: userId,
-    }).lean()
+    })
+      .lean({ virtuals: true })
+      .select('-__v')
 
     if (!workout) {
       return res.status(404).json({
@@ -299,6 +268,8 @@ export const updateWorkout = async (req, res) => {
           })
         }
       }
+
+      req.body.exercises = formatExercisePayload(exercises)
     }
 
     if (duration !== undefined && duration < 0) {
@@ -307,24 +278,29 @@ export const updateWorkout = async (req, res) => {
       })
     }
 
-    if (req.body.date !== undefined) {
-      const parsedDate = new Date(req.body.date)
+    if (req.body.startTime !== undefined) {
+      const parsedStartTime = new Date(req.body.startTime)
 
-      if (isNaN(parsedDate.getTime())) {
+      if (isNaN(parsedStartTime.getTime())) {
         return res.status(400).json({
-          error: 'Invalid workout date',
+          error: 'Invalid workout start time',
         })
       }
     }
 
     const updated = await Workout.findOneAndUpdate(
-      { _id: id, user: userId },
+      {
+        _id: id,
+        user: userId,
+      },
       req.body,
       {
         new: true,
         runValidators: true,
       }
-    ).lean()
+    )
+      .lean()
+      .select('-__v')
 
     const oldIds = existingWorkout.exercises.map((e) =>
       e.exerciseId.toString()
@@ -342,7 +318,7 @@ export const updateWorkout = async (req, res) => {
       await recalculateExercisePBs(userId, exerciseId)
     }
 
-    return res.json(updated)
+    return res.status(200).json(updated)
   } catch (err) {
     console.error('Update workout error:', err)
 
@@ -365,12 +341,18 @@ export const deleteWorkout = async (req, res) => {
     const { id } = req.params
     const userId = req.user.id
 
-    const workout = await Workout.findOne({
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        error: 'Invalid workout ID',
+      })
+    }
+
+    const existingWorkout = await Workout.findOne({
       _id: id,
       user: userId,
     })
 
-    if (!workout) {
+    if (!existingWorkout) {
       return res.status(404).json({
         error: 'Workout not found',
       })
@@ -378,7 +360,7 @@ export const deleteWorkout = async (req, res) => {
 
     const affectedExerciseIds = [
       ...new Set(
-        workout.exercises.map((e) =>
+        existingWorkout.exercises.map((e) =>
           e.exerciseId.toString()
         )
       ),
