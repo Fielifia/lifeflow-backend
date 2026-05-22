@@ -1,34 +1,60 @@
+default:
+  artifacts:
+    expire_in: 1 day
+
 stages:
   - install
   - lint
   - test
   - deploy
 
-test:
-  stage: test
-  script:
-    - echo "No backend tests implemented yet"
+image: node:22-alpine
 
-image: node:22
+cache:
+  key:
+    files:
+      - package-lock.json
+  paths:
+    - .npm/
 
 install:
   stage: install
+
   script:
-    - npm ci
+    - npm ci --cache .npm --prefer-offline
+
   artifacts:
     paths:
       - node_modules/
 
 lint:
   stage: lint
+
   dependencies:
     - install
+
   script:
     - npm run lint
 
+test:
+  stage: test
+
+  dependencies:
+    - install
+
+  script:
+    - echo "No backend tests implemented yet"
+    
 trigger-deploy:
   stage: deploy
+
+  needs:
+    - lint
+    - test
 
   trigger:
     project: 1dv613/student/sa226jf/workspace/lifeFlow-deploy
     branch: main
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
