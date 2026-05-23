@@ -266,6 +266,21 @@ const seedWorkoutHistory = async () => {
             return {
               exerciseId: ex._id,
 
+              muscle:
+                ex.target ||
+                ex.bodyPart ||
+                'Other',
+
+              bodyPart:
+                ex.bodyPart || 'Other',
+
+              primaryMuscles:
+                ex.target
+                  ? [ex.target]
+                  : ex.bodyPart
+                    ? [ex.bodyPart]
+                    : [],
+
               name: ex.name,
 
               images:

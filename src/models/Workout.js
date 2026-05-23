@@ -15,15 +15,18 @@ const setSchema = new mongoose.Schema({
     default: 8,
     min: 0,
   },
+  
   weight: {
     type: Number,
     default: 0,
     min: 0,
   },
+
   completed: {
     type: Boolean,
     default: false,
   },
+
   personalBest: {
     type: Boolean,
     default: false,
@@ -42,23 +45,43 @@ const exerciseSchema = new mongoose.Schema({
     ref: 'Exercise',
     required: true,
   },
+
   name: {
     type: String,
     required: true,
   },
+
+  muscle: {
+    type: String,
+    default: '',
+  },
+
+  bodyPart: {
+    type: String,
+    default: '',
+  },
+
+  primaryMuscles: {
+    type: [String],
+    default: [],
+  },
+
   images: {
     type: [String],
     default: [],
   },
+
   sets: {
     type: [setSchema],
     default: [],
   },
+
   rest: {
     type: Number,
     default: 120,
     min: 0,
   },
+
   notes: {
     type: String,
     default: '',
