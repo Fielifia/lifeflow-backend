@@ -12,18 +12,23 @@ import statsRouter from './statsRouter.js'
 
 const router = express.Router()
 
-// --- Auth routes ---
+// ===== AUTH =====
+
 router.use('/auth', authRoutes)
 
-// --- Workout routes ---
+// ===== WORKOUTS =====
+
 router.use('/workouts', workoutRoutes)
 
-// --- Exercise routes ---
+// ===== EXERCISES =====
+
 router.use('/exercises', exerciseRouter)
 
-// --- Template routes ---
+// ===== TEMPLATES =====
+
 router.use('/templates', templateRouter)
 
-// --- Statistics routes ---
+// ===== STATISTICS =====
+
 router.use('/stats', statsRouter)
 export default router

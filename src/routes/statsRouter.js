@@ -14,7 +14,8 @@ const router = express.Router()
 
 router.use(authMiddleware)
 
-// Collection routes
+// ===== COLLECTION ROUTES =====
+
 router.get('/overview', getOverviewStats)
 router.get('/', getStatistics)
 

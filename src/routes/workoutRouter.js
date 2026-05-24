@@ -18,11 +18,13 @@ const router = express.Router()
 
 router.use(authMiddleware)
 
-// Collection routes
+// ===== COLLECTION ROUTES =====
+
 router.get('/', getWorkouts)
 router.post('/', createWorkout)
 
-// ID-based routes
+// ===== ID-BASED ROUTES =====
+
 router.get('/exercises/:exerciseId/previous', getPreviousExercise)
 router.get('/:id', getWorkoutById)
 router.put('/:id', updateWorkout)

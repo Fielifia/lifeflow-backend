@@ -1,7 +1,8 @@
 /**
  * User model
  *
- * Stores user credentials for authentication.
+ * Stores user credentials
+ * and user-specific preferences.
  */
 
 import mongoose from 'mongoose'
@@ -15,14 +16,23 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+
     username: {
       type: String,
       required: true,
     },
+
     password: {
       type: String,
       required: true,
     },
+
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Exercise',
+      },
+    ],
   },
   { timestamps: true }
 )

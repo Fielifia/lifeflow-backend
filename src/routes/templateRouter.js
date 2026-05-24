@@ -17,11 +17,13 @@ const router = express.Router()
 
 router.use(authMiddleware)
 
-// Collection routes
+// ===== COLLECTION ROUTES =====
+
 router.post('/', createTemplate)
 router.get('/', getTemplates)
 
-// ID-based routes
+// ===== ID-BASED ROUTES =====
+
 router.get('/:id', getTemplateById)
 router.put('/:id', updateTemplate)
 router.delete('/:id', deleteTemplate)

@@ -1,15 +1,122 @@
 /**
  * Exercise controller handling exercise retrieval
- * with search, filters, sorting, and pagination.
+ * with search, filters, sorting, pagination,
+ * and favorite exercise management.
  *
  * @module controllers/exerciseController
  */
 
 import Exercise from '../models/Exercise.js'
+import User from '../models/User.js'
 
 import {
   getExerciseUsageStats,
 } from '../services/statsService.js'
+
+// ===== FAVORITES =====
+
+/**
+ * Get current user's favorite exercises.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const getFavoriteExercises = async (req, res) => {
+  try {
+    const user =
+      await User.findById(req.user.id)
+        .populate('favorites')
+
+    return res.status(200).json(
+      user.favorites
+    )
+
+  } catch (err) {
+    console.error(
+      'Get favorite exercises error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to fetch favorite exercises',
+    })
+  }
+}
+
+/**
+ * Add exercise to favorites.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const addFavoriteExercise = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $addToSet: {
+          favorites: id,
+        },
+      }
+    )
+
+    return res.status(200).json({
+      message: 'Exercise added to favorites',
+    })
+
+  } catch (err) {
+    console.error(
+      'Add favorite exercise error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to add favorite exercise',
+    })
+  }
+}
+
+/**
+ * Remove exercise from favorites.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const removeFavoriteExercise = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    await User.findByIdAndUpdate(
+      req.user.id,
+      {
+        $pull: {
+          favorites: id,
+        },
+      }
+    )
+
+    return res.status(200).json({
+      message: 'Exercise removed from favorites',
+    })
+
+  } catch (err) {
+    console.error(
+      'Remove favorite exercise error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to remove favorite exercise',
+    })
+  }
+}
+
+// ===== EXERCISES =====
 
 /**
  * Get all exercises with filtering,
