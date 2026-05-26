@@ -8,10 +8,21 @@
 export const formatExercisePayload = (exercises = []) => {
   return exercises.map((ex) => ({
     exerciseId: ex.id || ex.exerciseId,
+
     name: ex.name,
+
+    muscle: ex.muscle || '',
+
+    bodyPart: ex.bodyPart || '',
+
+    primaryMuscles: ex.primaryMuscles || [],
+
     images: ex.images || [],
+
     sets: ex.sets || [],
+
     rest: ex.rest ?? ex.restTime ?? 120,
+
     notes: ex.notes ?? '',
   }))
 }
