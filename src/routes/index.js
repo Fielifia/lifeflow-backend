@@ -4,8 +4,9 @@
  * @module routes/index
  */
 import express from 'express'
-import authRoutes from './authRouter.js'
-import workoutRoutes from './workoutRouter.js'
+import authRouter from './authRouter.js'
+import userRouter from './userRouter.js'
+import workoutRouter from './workoutRouter.js'
 import exerciseRouter from './exerciseRouter.js'
 import templateRouter from './templateRouter.js'
 import statsRouter from './statsRouter.js'
@@ -14,11 +15,15 @@ const router = express.Router()
 
 // ===== AUTH =====
 
-router.use('/auth', authRoutes)
+router.use('/auth', authRouter)
+
+// ===== USER =====
+
+router.use('/users', userRouter)
 
 // ===== WORKOUTS =====
 
-router.use('/workouts', workoutRoutes)
+router.use('/workouts', workoutRouter)
 
 // ===== EXERCISES =====
 

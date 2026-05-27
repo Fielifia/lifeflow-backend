@@ -33,6 +33,28 @@ const userSchema = new mongoose.Schema(
         ref: 'Exercise',
       },
     ],
+
+    settings: {
+      monthlyGoal: {
+        type: Number,
+        default: 12,
+      },
+
+      defaultRestTime: {
+        type: Number,
+        default: 120,
+      },
+
+      restTimerEnabled: {
+        type: Boolean,
+        default: true,
+      },
+
+      soundEnabled: {
+        type: Boolean,
+        default: true,
+      },
+    },
   },
   { timestamps: true }
 )
