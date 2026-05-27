@@ -12,6 +12,10 @@ import {
   recalculateExercisePBs,
 } from '../src/services/personalBestService.js'
 
+import {
+  mockResponse,
+} from './helpers/mockResponse.js'
+
 vi.mock('../src/models/Workout.js')
 
 describe('recalculateExercisePBs', () => {

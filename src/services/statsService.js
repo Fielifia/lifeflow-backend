@@ -13,7 +13,7 @@ import Workout from '../models/Workout.js'
  *   personalBests: number
  * }} - Workout statistics
  */
-const calculateWorkoutStatistics = (workouts) => {
+export const calculateWorkoutStatistics = (workouts) => {
   let totalSets = 0
   let totalReps = 0
   let totalVolume = 0
@@ -55,7 +55,7 @@ const calculateWorkoutStatistics = (workouts) => {
  * @param {Array<object>} workouts - User workouts
  * @returns {number | null} Days since last workout
  */
-const calculateDaysSinceWorkout = (workouts) => {
+export const calculateDaysSinceWorkout = (workouts) => {
   if (!workouts.length) {
     return null
   }
@@ -82,7 +82,7 @@ const calculateDaysSinceWorkout = (workouts) => {
  *   minutes: number
  * }[]} - Weekly activity data
  */
-const buildWeeklyActivity = (workouts) => {
+export const buildWeeklyActivity = (workouts) => {
   const weeklyActivity = [
     { day: 'Mon', minutes: 0 },
     { day: 'Tue', minutes: 0 },

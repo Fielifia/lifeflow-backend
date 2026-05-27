@@ -18,7 +18,7 @@ export const recalculateExercisePBs = async (
   const workouts = await Workout.find({
     user: userId,
     'exercises.exerciseId': exerciseId,
-  }).sort({ date: 1 })
+  }).sort({ startTime: 1 })
 
   for (const workout of workouts) {
 
