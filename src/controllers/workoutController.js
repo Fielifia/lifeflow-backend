@@ -29,7 +29,6 @@ export const createWorkout = async (req, res) => {
     }
 
     const formattedExercises = formatExercisePayload(exercises)
-    console.log(exercises)
 
     const workout = await Workout.create({
       name,
@@ -41,7 +40,6 @@ export const createWorkout = async (req, res) => {
       notes,
     })
 
-    console.log(workout)
 
     const affectedExerciseIds = [
       ...new Set(
