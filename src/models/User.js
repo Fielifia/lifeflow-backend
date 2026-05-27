@@ -27,6 +27,16 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
 
+    bio: {
+      type: String,
+      default: '',
+    },
+
+    avatar: {
+      type: String,
+      default: '',
+    },
+
     favorites: [
       {
         type: mongoose.Schema.Types.ObjectId,
