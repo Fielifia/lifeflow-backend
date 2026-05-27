@@ -83,6 +83,7 @@ trigger-deploy:
   trigger:
     project: 1dv613/student/sa226jf/workspace/lifeflow-deploy
     branch: main
+    strategy: depend
 
   variables:
     IMAGE_TAG: $CI_COMMIT_SHA
