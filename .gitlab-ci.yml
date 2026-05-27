@@ -6,6 +6,7 @@ stages:
   - install
   - lint
   - test
+  - build
   - deploy
 
 image: node:22-alpine
@@ -48,16 +49,43 @@ test:
   script:
     - echo "No backend tests implemented yet"
 
+build-image:
+  stage: build
+
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.1-debug
+    entrypoint: [""]
+
+  script:
+    - mkdir -p /kaniko/.docker
+
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+
+    - >
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --target production
+      --cache=true
+      --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA}"
+
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
 trigger-deploy:
   stage: deploy
 
   needs:
     - lint
     - test
+    - build-image
 
   trigger:
-    project: 1dv613/student/sa226jf/workspace/lifeFlow-deploy
+    project: 1dv613/student/sa226jf/workspace/lifeflow-deploy
     branch: main
+
+  variables:
+    IMAGE_TAG: $CI_COMMIT_SHA
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
