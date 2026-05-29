@@ -85,8 +85,8 @@ trigger-deploy:
     branch: main
     strategy: depend
 
-  variables:
-    IMAGE_TAG: $CI_COMMIT_SHA
+  # variables:
+  #   IMAGE_TAG: $CI_COMMIT_SHA
 
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
