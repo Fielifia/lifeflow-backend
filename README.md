@@ -1,71 +1,120 @@
-# LifeFlow Backend
-Backend API for the LifeFlow Fitness project.
-This API handles workout tracking, user data and exercise management for the LifeFlow Fitness application.
+# LifeFlow Fitness Backend
 
-This is a Node.js + Express server that will power the LifeFlow application.
+Backend API for LifeFlow Fitness.
+
+Built with:
+
+- Node.js
+- Express
+- MongoDB
+- Mongoose
+- JWT Authentication
+- Docker
 
 ## Features
-- User authentication (planned)
-- Workout logging
-- Exercise management
-- REST API endpoints
- 
-## API Endpoints
 
-### GET /workouts
-Get all workouts
-
-### POST /workouts
-Create a new workout
-
-### GET /exercises
-Get available exercises
-
-## Future improvements
-- Authentication & authorization
-- Database integration
-- Automated testing
-- CI/CD pipeline
+- User registration and login
+- JWT authentication
+- Workout management
+- Workout templates
+- Personal best calculation
+- Statistics aggregation
+- Exercise library integration
+- Notes support
 
 ## Requirements
-- Node.js (recommended v18+)
+
+- Node.js 18+
 - npm
+- MongoDB
 
 ## Installation
-Clone the repository and install dependencies:
+
 ```bash
 git clone <repo-url>
 cd lifeflow-backend
 npm install
 ```
 
-## Run the development server
-Start the server with:
+## Environment Variables
+
+Copy `.env.example` to `.env`.
+
+Example:
+
+```env
+PORT=5000
+JWT_SECRET=your-secret
+MONGO_URI=your-mongodb-uri
+RAPIDAPI_KEY=your-api-key
+```
+
+## Development
+
+```bash
+npm run dev
+```
+
+## Production
+
 ```bash
 npm start
 ```
-The server will run on:
-```
-http://localhost:5000
-```
-If everything works, visiting the URL in your browser should show:
+
+Server runs on:
+
+`http://localhost:5000`
+
+## Testing
+
 ```bash
-"Hello from the backend 🚀"
+npm test
 ```
 
-## Environment variables
-Create a `.env` file in the root of the project and copy the content from `.env.example`.
+Uses Vitest for backend unit testing.
 
-Example:
+## Code Quality
+
 ```bash
-PORT=5000
+npm run lint
+npm run lint:fix
 ```
 
-## Available endpoints
-### GET /
-Test endpoint to verify that the backend is running.
+## Docker
 
-Response:
 ```bash
-"Hello from the backend 🚀"
+npm run docker:dev
+npm run docker:prod
 ```
+
+## API Resources
+
+```bash
+/auth
+/users
+/workouts
+/templates
+/exercises
+/stats
+```
+
+## Architecture
+
+The backend follows a layered structure:
+
+```bash
+src/
+├── controllers/
+├── middleware/
+├── models/
+├── routes/
+├── services/
+├── utils/
+└── scripts/
+```
+
+## Related Repositories
+
+- [Frontend](https://gitlab.lnu.se/1dv613/student/sa226jf/workspace/lifeflow-frontend)
+- [Deployment](https://gitlab.lnu.se/1dv613/student/sa226jf/workspace/lifeflow-deploy)
+- [Project Hub](https://gitlab.lnu.se/1dv613/student/sa226jf/project-hub)
