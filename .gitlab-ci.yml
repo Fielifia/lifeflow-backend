@@ -43,11 +43,8 @@ test:
   dependencies:
     - install
 
-  variables:
-    NODE_ENV: test
-
   script:
-    - echo "No backend tests implemented yet"
+    - npm test -- --run
 
 build-image:
   stage: build

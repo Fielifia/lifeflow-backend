@@ -15,11 +15,11 @@ export const createWorkout = async (req, res) => {
   try {
     const userId = req.user.id
     const {
+      duration = 0,
       exercises = [],
       name,
-      duration = 0,
-      startTime,
       notes = '',
+      startTime,
     } = req.body
 
     if (!name || name.trim() === '') {
@@ -224,7 +224,7 @@ export const updateWorkout = async (req, res) => {
   try {
     const { id } = req.params
     const userId = req.user.id
-    const { exercises, name, duration } = req.body
+    const { duration, exercises, name } = req.body
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
