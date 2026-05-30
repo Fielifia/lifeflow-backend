@@ -17,7 +17,7 @@ Built with:
 - JWT authentication
 - Workout management
 - Workout templates
-- Personal best calculation
+- Personal best detection
 - Statistics aggregation
 - Exercise library integration
 - Notes support
@@ -55,15 +55,20 @@ RAPIDAPI_KEY=your-api-key
 npm run dev
 ```
 
+Server runs on:
+
+`http://localhost:5000`
+
+Uses nodemon for automatic server reload during development.
+
 ## Production
 
 ```bash
 npm start
 ```
+Starts the Express server in production mode.
 
-Server runs on:
-
-`http://localhost:5000`
+The API is typically deployed through Docker and served behind a reverse proxy.
 
 ## Testing
 
@@ -71,7 +76,7 @@ Server runs on:
 npm test
 ```
 
-Uses Vitest for backend unit testing.
+Backend unit tests are implemented using Vitest and executed automatically in the CI/CD pipeline.
 
 ## Code Quality
 
@@ -79,6 +84,8 @@ Uses Vitest for backend unit testing.
 npm run lint
 npm run lint:fix
 ```
+
+The project uses ESLint and JSDoc conventions to maintain code quality and consistency.
 
 ## Docker
 
@@ -89,7 +96,7 @@ npm run docker:prod
 
 ## API Resources
 
-```bash
+```txt
 /auth
 /users
 /workouts
@@ -102,7 +109,7 @@ npm run docker:prod
 
 The backend follows a layered structure:
 
-```bash
+```txt
 src/
 ├── controllers/
 ├── middleware/
@@ -110,7 +117,9 @@ src/
 ├── routes/
 ├── services/
 ├── utils/
-└── scripts/
+├── scripts/
+├── app.js
+└── server.js
 ```
 
 ## Related Repositories
