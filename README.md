@@ -9,7 +9,6 @@ Built with:
 - MongoDB
 - Mongoose
 - JWT Authentication
-- Docker
 
 ## Features
 
@@ -100,13 +99,6 @@ npm run lint:fix
 ```
 
 The project uses ESLint and JSDoc conventions to maintain code quality and consistency.
-
-## Docker
-
-```bash
-npm run docker:dev
-npm run docker:prod
-```
 
 ## API Resources
 
