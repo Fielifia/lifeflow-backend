@@ -24,7 +24,7 @@ Built with:
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 22+
 - npm
 - MongoDB
 
@@ -72,11 +72,25 @@ The API is typically deployed through Docker and served behind a reverse proxy.
 
 ## Testing
 
+Run automated tests:
+
 ```bash
 npm test
 ```
 
-Backend unit tests are implemented using Vitest and executed automatically in the CI/CD pipeline.
+Unit tests are implemented using Vitest and executed automatically in the CI/CD pipeline.
+
+## CI/CD
+
+The backend is automatically validated through GitLab CI/CD.
+
+Pipeline checks include:
+
+- ESLint
+- Vitest unit tests
+- Docker image build verification
+
+All checks must pass before deployment.
 
 ## Code Quality
 
@@ -98,11 +112,11 @@ npm run docker:prod
 
 ```txt
 /auth
-/users
-/workouts
-/templates
 /exercises
 /stats
+/templates
+/users
+/workouts
 ```
 
 ## Architecture
