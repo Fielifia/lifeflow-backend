@@ -136,6 +136,10 @@ src/
 └── server.js
 ```
 
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://gitlab.lnu.se/1dv613/student/sa226jf/workspace/lifeflow-backend/-/blob/main/LICENSE?ref_type=heads) file for details.
+
 ## Related Repositories
 
 - [Frontend](https://gitlab.lnu.se/1dv613/student/sa226jf/workspace/lifeflow-frontend)
