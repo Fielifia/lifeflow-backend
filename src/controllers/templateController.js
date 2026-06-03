@@ -204,7 +204,8 @@ export const updateTemplate = async (req, res) => {
 }
 
 /**
- * Delete a workout template
+ * Delete a workout template by ID
+ * Requires authenticated user
  *
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
@@ -245,6 +246,38 @@ export const deleteTemplate = async (req, res) => {
 
     return res.status(500).json({
       error: 'Failed to delete template',
+    })
+  }
+}
+
+/**
+ * Delete all workout templates
+ * Requires authenticated user
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const deleteAllTemplates = async (
+  req,
+  res
+) => {
+  try {
+    await Template.deleteMany({
+      user: req.user.id,
+    })
+
+    return res.status(200).json({
+      message: 'All templates deleted successfully',
+    })
+  } catch (err) {
+    console.error(
+      'Delete all templates error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to delete templates',
     })
   }
 }

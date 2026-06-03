@@ -11,6 +11,7 @@ import {
   getWorkoutById,
   updateWorkout,
   deleteWorkout,
+  deleteAllWorkouts,
 } from '../controllers/workoutController.js'
 import { authMiddleware } from '../middleware/auth.js'
 
@@ -29,5 +30,6 @@ router.get('/exercises/:exerciseId/previous', getPreviousExercise)
 router.get('/:id', getWorkoutById)
 router.put('/:id', updateWorkout)
 router.delete('/:id', deleteWorkout)
+router.delete('/', deleteAllWorkouts)
 
 export default router

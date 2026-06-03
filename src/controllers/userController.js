@@ -1,4 +1,6 @@
 import User from '../models/User.js'
+import Workout from '../models/Workout.js'
+import Template from '../models/Template.js'
 
 /**
  * Returns authenticated user.
@@ -36,6 +38,82 @@ export const getCurrentUser = async (
 
     return res.status(500).json({
       error: 'Failed to fetch user',
+    })
+  }
+}
+
+/**
+ * Updates the authenticated user's information.
+ * 
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const updateUserInformation = async (req, res) => {
+  try {
+    const { username, email } = req.body
+
+    const updates = {}
+
+    if (username !== undefined) {
+      if (!username.trim()) {
+        return res.status(400).json({
+          error: 'Username is required',
+        })
+      }
+
+      updates.username = username.trim()
+    }
+
+    if (email !== undefined) {
+      if (!email.trim()) {
+        return res.status(400).json({
+          error: 'Email is required',
+        })
+      }
+
+      updates.email = email.trim().toLowerCase()
+    }
+
+    const existingUser = await User.findOne({
+      $or: [
+        ...(updates.email ? [{ email: updates.email }] : []),
+        ...(updates.username
+          ? [{ username: updates.username }]
+          : []),
+      ],
+      _id: { $ne: req.user.id },
+    })
+
+    if (existingUser) {
+      return res.status(409).json({
+        error: 'Username or email already in use',
+      })
+    }
+
+    const updatedUser =
+      await User.findByIdAndUpdate(
+        req.user.id,
+        {
+          $set: updates,
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      )
+        .select('-password -__v')
+        .lean()
+
+    return res.status(200).json(updatedUser)
+  } catch (err) {
+    console.error(
+      'Update user error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to update user',
     })
   }
 }
@@ -101,3 +179,42 @@ export const updateUserSettings =
       })
     }
   }
+
+/**
+ * Deletes the authenticated user's account.
+ * 
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const deleteAccount = async (
+  req,
+  res
+) => {
+  try {
+    const userId = req.user.id
+
+    await Workout.deleteMany({
+      user: userId,
+    })
+
+    await Template.deleteMany({
+      user: userId,
+    })
+
+    await User.findByIdAndDelete(
+      userId
+    )
+
+    return res.status(204).send()
+  } catch (err) {
+    console.error(
+      'Delete account error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to delete account',
+    })
+  }
+}

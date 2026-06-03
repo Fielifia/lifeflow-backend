@@ -11,6 +11,7 @@ import {
   getTemplateById, 
   updateTemplate, 
   deleteTemplate,
+  deleteAllTemplates,
 } from '../controllers/templateController.js'
 
 const router = express.Router()
@@ -27,5 +28,6 @@ router.get('/', getTemplates)
 router.get('/:id', getTemplateById)
 router.put('/:id', updateTemplate)
 router.delete('/:id', deleteTemplate)
+router.delete('/', deleteAllTemplates)
 
 export default router

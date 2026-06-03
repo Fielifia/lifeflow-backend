@@ -387,3 +387,54 @@ export const deleteWorkout = async (req, res) => {
     })
   }
 }
+
+/**
+ * Deletes all workouts for the authenticated user.
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
+ */
+export const deleteAllWorkouts = async (req, res) => {
+  try {
+    const userId = req.user.id
+
+    const workouts = await Workout.find({
+      user: userId,
+    }).lean()
+
+    const affectedExerciseIds = [
+      ...new Set(
+        workouts.flatMap((workout) =>
+          workout.exercises.map((e) =>
+            e.exerciseId.toString()
+          )
+        )
+      ),
+    ]
+
+    await Workout.deleteMany({
+      user: userId,
+    })
+
+    for (const exerciseId of affectedExerciseIds) {
+      await recalculateExercisePBs(
+        userId,
+        exerciseId
+      )
+    }
+
+    return res.status(200).json({
+      message: 'All workouts deleted successfully',
+    })
+  } catch (err) {
+    console.error(
+      'Delete all workouts error:',
+      err
+    )
+
+    return res.status(500).json({
+      error: 'Failed to delete workouts',
+    })
+  }
+}
