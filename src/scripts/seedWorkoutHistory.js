@@ -8,7 +8,7 @@ dotenv.config()
 
 // ===== CONFIG =====
 
-const USER_ID = '69e1f9912a315c1adbbe6fd8'
+const USER_ID = '6a1fc902bc9ed68784ecadd7'
 
 const TOTAL_WORKOUTS = 90
 

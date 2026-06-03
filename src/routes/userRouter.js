@@ -5,6 +5,7 @@ import { authMiddleware } from '../middleware/auth.js'
 import {
   getCurrentUser,
   updateUserSettings,
+  deleteAccount,
 } from '../controllers/userController.js'
 
 const router = express.Router()
@@ -17,5 +18,7 @@ router.patch(
   '/settings',
   updateUserSettings
 )
+
+router.delete('/me', deleteAccount)
 
 export default router
