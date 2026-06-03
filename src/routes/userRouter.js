@@ -5,6 +5,7 @@ import { authMiddleware } from '../middleware/auth.js'
 import {
   getCurrentUser,
   updateUserSettings,
+  updateUserInformation,
   deleteAccount,
 } from '../controllers/userController.js'
 
@@ -18,6 +19,8 @@ router.patch(
   '/settings',
   updateUserSettings
 )
+
+router.patch('/', updateUserInformation)
 
 router.delete('/', deleteAccount)
 
