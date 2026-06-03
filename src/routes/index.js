@@ -19,7 +19,7 @@ router.use('/auth', authRouter)
 
 // ===== USER =====
 
-router.use('/users', userRouter)
+router.use('/user', userRouter)
 
 // ===== WORKOUTS =====
 

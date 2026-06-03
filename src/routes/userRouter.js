@@ -19,6 +19,6 @@ router.patch(
   updateUserSettings
 )
 
-router.delete('/me', deleteAccount)
+router.delete('/', deleteAccount)
 
 export default router

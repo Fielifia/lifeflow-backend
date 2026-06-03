@@ -1,4 +1,6 @@
 import User from '../models/User.js'
+import Workout from '../models/Workout.js'
+import Template from '../models/Template.js'
 
 /**
  * Returns authenticated user.
@@ -104,27 +106,39 @@ export const updateUserSettings =
 
 /**
  * Deletes the authenticated user's account.
+ * 
  * @param {import('express').Request} req - Express request object
  * @param {import('express').Response} res - Express response object
  * @returns {Promise<void>} Sends JSON response
  */
-export const deleteAccount = async (req, res) => {
+export const deleteAccount = async (
+  req,
+  res
+) => {
   try {
     const userId = req.user.id
 
-    await User.findByIdAndDelete(userId)
-    res.status(204).send()
+    await Workout.deleteMany({
+      user: userId,
+    })
+
+    await Template.deleteMany({
+      user: userId,
+    })
+
+    await User.findByIdAndDelete(
+      userId
+    )
+
+    return res.status(204).send()
   } catch (err) {
     console.error(
       'Delete account error:',
       err
     )
 
-    res.status(500).json({
-      error: 'Failed to delete account'
+    return res.status(500).json({
+      error: 'Failed to delete account',
     })
   }
-
-
-
 }
