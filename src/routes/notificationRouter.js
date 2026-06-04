@@ -9,8 +9,7 @@ import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
-  deleteNotification,
-  createNotification,
+  deleteNotification
 } from '../controllers/notificationController.js'
 
 const router = express.Router()
@@ -27,9 +26,5 @@ router.patch('/read-all', markAllNotificationsAsRead)
 
 router.patch('/:id/read', markNotificationAsRead)
 router.delete('/:id', deleteNotification)
-
-// ===== TEST ROUTER =====
-
-router.post('/', createNotification)
 
 export default router

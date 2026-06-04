@@ -25,10 +25,9 @@ const notificationSchema =
         type: String,
         required: true,
         enum: [
-          'recovery',
           'goal',
           'achivement',
-          'reminder',
+          'personal-best',
         ],
       },
 
