@@ -26,7 +26,7 @@ const notificationSchema =
         required: true,
         enum: [
           'goal',
-          'achivement',
+          'achievement',
           'personal-best',
         ],
       },
