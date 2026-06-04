@@ -10,6 +10,7 @@ import workoutRouter from './workoutRouter.js'
 import exerciseRouter from './exerciseRouter.js'
 import templateRouter from './templateRouter.js'
 import statsRouter from './statsRouter.js'
+import notificationRouter from './notificationRouter.js'
 
 const router = express.Router()
 
@@ -36,4 +37,9 @@ router.use('/templates', templateRouter)
 // ===== STATISTICS =====
 
 router.use('/stats', statsRouter)
+
+// ===== NOTIFICATIONS =====
+
+router.use('/notifications', notificationRouter)
+
 export default router

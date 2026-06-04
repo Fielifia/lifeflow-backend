@@ -25,10 +25,10 @@ const notificationSchema =
         type: String,
         required: true,
         enum: [
-          'rest-complete',
-          'personal-best',
-          'goal-achieved',
-          'workout-reminder',
+          'recovery',
+          'goal',
+          'achivement',
+          'reminder',
         ],
       },
 
@@ -75,10 +75,10 @@ const notificationSchema =
     },
     {
       timestamps: true,
-    },
+    }
   )
 
 export default mongoose.model(
   'Notification',
-  notificationSchema,
+  notificationSchema
 )

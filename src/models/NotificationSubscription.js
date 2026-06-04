@@ -43,15 +43,15 @@ const notificationSubscriptionSchema =
     },
     {
       timestamps: true,
-    },
+    }
   )
 
 notificationSubscriptionSchema.index(
   { endpoint: 1 },
-  { unique: true },
+  { unique: true }
 )
 
 export default mongoose.model(
   'NotificationSubscription',
-  notificationSubscriptionSchema,
+  notificationSubscriptionSchema
 )

@@ -11,13 +11,13 @@ import NotificationSubscription
 /**
  * Creates and stores a notification.
  *
- * @param {Object} notificationData - Notification data.
+ * @param {object} notificationData - Notification data.
  * @param {string} notificationData.userId - User id.
  * @param {string} notificationData.type - Notification type.
  * @param {string} notificationData.title - Notification title.
  * @param {string} notificationData.message - Notification message.
- * @param {Object} [notificationData.data] - Additional metadata.
- * @returns {Promise<Object>} Created notification.
+ * @param {object} [notificationData.data] - Additional metadata.
+ * @returns {Promise<object>} Created notification.
  */
 export const createNotification = async ({
   userId,
@@ -39,7 +39,7 @@ export const createNotification = async ({
  * Gets all notifications for a user.
  *
  * @param {string} userId - User id.
- * @returns {Promise<Array>} User notifications.
+ * @returns {Promise<object[]>} User notifications.
  */
 export const getNotifications = async (userId) => {
   return Notification
@@ -51,18 +51,62 @@ export const getNotifications = async (userId) => {
  * Marks a notification as read.
  *
  * @param {string} notificationId - Notification id.
- * @returns {Promise<Object|null>} Updated notification.
+ * @param {string} userId - User id.
+ * @returns {Promise<object | null>} Updated notification.
  */
-export const markAsRead = async (notificationId) => {
-  return Notification.findByIdAndUpdate(
-    notificationId,
+export const markAsRead = async (
+  notificationId,
+  userId
+) => {
+  return Notification.findOneAndUpdate(
+    {
+      _id: notificationId,
+      user: userId,
+    },
     {
       read: true,
     },
     {
       new: true,
-    },
+    }
   )
+}
+
+/**
+ * Marks all notifications as read.
+ *
+ * @param {string} userId - User id.
+ * @returns {Promise<object>} Update result.
+ */
+export const markAllAsRead = async (
+  userId
+) => {
+  return Notification.updateMany(
+    {
+      user: userId,
+      read: false,
+    },
+    {
+      read: true,
+    }
+  )
+}
+
+/**
+ * Deletes a notification.
+ *
+ * @param {string} notificationId - Notification id.
+ * @param {string} userId - User id.
+ * @returns {Promise<object | null>} Deleted notification.
+ */
+export const deleteNotification = async (
+  notificationId,
+  userId
+) => {
+  return Notification.findOneAndDelete({
+    _id: notificationId,
+    user: userId,
+  })
 }
 
 /**
@@ -72,13 +116,12 @@ export const markAsRead = async (notificationId) => {
  * for a user and updates existing subscriptions
  * when needed.
  *
- * @param {Object} subscriptionData - Subscription data.
+ * @param {object} subscriptionData - Subscription data.
  * @param {string} subscriptionData.userId - User id.
  * @param {string} subscriptionData.endpoint - Push endpoint.
- * @param {Object} subscriptionData.keys - Web Push encryption keys.
- * @param {string} subscriptionData.keys.p256dh - Public encryption key.
- * @param {string} subscriptionData.keys.auth - Authentication secret.
- * @returns {Promise<Object>} Saved subscription.
+ * @param {{p256dh: string, auth: string}} subscriptionData.keys
+ *   - Web Push encryption keys.
+ * @returns {Promise<object>} Saved subscription.
  */
 export const saveSubscription = async ({
   userId,
@@ -98,7 +141,7 @@ export const saveSubscription = async ({
       upsert: true,
       new: true,
       runValidators: true,
-    },
+    }
   )
 }
 
@@ -106,9 +149,11 @@ export const saveSubscription = async ({
  * Deletes a push notification subscription.
  *
  * @param {string} endpoint - Push endpoint.
- * @returns {Promise<Object|null>} Deleted subscription.
+ * @returns {Promise<object | null>} Deleted subscription.
  */
-export const deleteSubscription = async (endpoint) => {
+export const deleteSubscription = async (
+  endpoint
+) => {
   return NotificationSubscription.findOneAndDelete({
     endpoint,
   })
@@ -119,22 +164,11 @@ export const deleteSubscription = async (endpoint) => {
  * for a user.
  *
  * @param {string} userId - User id.
- * @returns {Promise<Object[]>} User subscriptions.
+ * @returns {Promise<object[]>} User subscriptions.
  */
-export const getSubscriptions = async (userId) => {
-  return NotificationSubscription.find({
-    user: userId,
-  })
-}
-
-/**
- * Gets all push notification subscriptions
- * for a user.
- *
- * @param {string} userId - User id.
- * @returns {Promise<Object[]>} User subscriptions.
- */
-export const getSubscriptions = async (userId) => {
+export const getSubscriptions = async (
+  userId
+) => {
   return NotificationSubscription.find({
     user: userId,
   })
