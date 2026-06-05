@@ -118,3 +118,32 @@ export const deleteNotification = async (
     })
   }
 }
+
+/**
+ * To test endpoint
+ */
+export const createNotification = async (
+  req,
+  res
+) => {
+  try {
+    const notification =
+      await notificationService.createNotification({
+        userId: req.user.id,
+        type: req.body.type,
+        title: req.body.title,
+        message: req.body.message,
+        data: req.body.data,
+      })
+
+    return res.status(201).json(
+      notification
+    )
+  } catch (error) {
+    console.error(error)
+
+    return res.status(500).json({
+      error: error.message,
+    })
+  }
+}
