@@ -121,6 +121,10 @@ export const deleteNotification = async (
 
 /**
  * To test endpoint
+ *
+ * @param {import('express').Request} req - Express request object
+ * @param {import('express').Response} res - Express response object
+ * @returns {Promise<void>} Sends JSON response
  */
 export const createNotification = async (
   req,
