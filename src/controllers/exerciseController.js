@@ -29,7 +29,7 @@ export const getFavoriteExercises = async (req, res) => {
         .populate('favorites')
 
     return res.status(200).json(
-      user.favorites
+      user?.favorites
     )
 
   } catch (err) {
