@@ -31,3 +31,14 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ghcr.io/fielifia/lifeflow-backend:latest
+
+        - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script: |
+            cd ~/lifeflow/deploy
+            docker compose pull backend
+            docker compose up -d backend
