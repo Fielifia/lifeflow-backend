@@ -4,6 +4,7 @@
  * @module routes/index
  */
 import express from 'express'
+
 import authRouter from './authRouter.js'
 import userRouter from './userRouter.js'
 import workoutRouter from './workoutRouter.js'

@@ -1,30 +1,42 @@
 /**
- * Exercise routes for notifications.
+ * Notification routes.
  *
  * @module routes/notifications
  */
 import express from 'express'
+
 import { authMiddleware } from '../middleware/auth.js'
+
 import {
   getNotifications,
   markNotificationAsRead,
   markAllNotificationsAsRead,
-  deleteNotification
+  deleteNotification,
+  createNotification,
 } from '../controllers/notificationController.js'
 
 const router = express.Router()
 
 router.use(authMiddleware)
 
-// ===== COLLECTION ROUTES =====
+// ===== MARK AS READ =====
 
-router.get('/', getNotifications)
+router.patch('/:id/read', markNotificationAsRead)
+
+// ===== DELETE NOTIFICATION =====
+
+router.delete('/:id', deleteNotification)
+
+// ===== MARK ALL AS READ =====
 
 router.patch('/read-all', markAllNotificationsAsRead)
 
-// ===== ID-BASED ROUTES =====
+// ===== GET ALL NOTIFICATIONS =====
 
-router.patch('/:id/read', markNotificationAsRead)
-router.delete('/:id', deleteNotification)
+router.get('/', getNotifications)
+
+// ===== CREATE NOTIFICATION (TEST ROUTE) =====
+
+router.post('/', createNotification)
 
 export default router

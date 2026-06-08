@@ -7,5 +7,7 @@ export const mockResponse = () => {
 
   res.json = vi.fn().mockReturnValue(res)
 
+  res.sendStatus = vi.fn().mockReturnValue(res)
+
   return res
 }
