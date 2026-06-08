@@ -1,10 +1,12 @@
 /**
- * Exercise routes for retrieving statistics.
+ * Statistics routes.
  *
  * @module routes/stats
  */
 import express from 'express'
+
 import { authMiddleware } from '../middleware/auth.js'
+
 import {
   getOverviewStats,
   getStatistics,
@@ -14,9 +16,12 @@ const router = express.Router()
 
 router.use(authMiddleware)
 
-// ===== COLLECTION ROUTES =====
+// ===== GET STATISTICS OVERVIEW =====
 
 router.get('/overview', getOverviewStats)
+
+// ===== GET ALL STATISTICS =====
+
 router.get('/', getStatistics)
 
 export default router
